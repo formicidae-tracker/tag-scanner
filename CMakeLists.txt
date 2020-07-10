@@ -18,9 +18,12 @@ find_package(FortMyrmidon REQUIRED)
 find_package(FortTags REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+pkg_check_modules(APRILTAG apriltag REQUIRED)
+
 include_directories(${FORT_MYRMIDON_INCLUDE_DIRS}
                     ${FORT_TAGS_INCLUDE_DIRS}
-                    ${EIGEN3_INCLUDE_DIRS})
+                    ${EIGEN3_INCLUDE_DIRS}
+                    ${APRILTAG_INCLUDE_DIRS})
 
 
 add_subdirectory(src)

@@ -3,6 +3,7 @@
 #include <QMainWindow>
 
 class Camera;
+class ApriltagDetector;
 
 namespace Ui {
 class MainWindow;
@@ -24,4 +25,5 @@ private:
     Ui::MainWindow * d_ui;
 
 	Camera * d_camera;
+	ApriltagDetector * d_detector;
 };

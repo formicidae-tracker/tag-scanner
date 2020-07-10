@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 
 #include "Camera.hpp"
+#include "ApriltagDetector.hpp"
 
 #include <iostream>
 
@@ -12,7 +13,8 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
-	, d_camera(nullptr) {
+	, d_camera(nullptr)
+	, d_detector(new ApriltagDetector(this)){
     d_ui->setupUi(this);
 
     auto cameras = CVCamera::Enumerate();
@@ -25,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
 	    d_ui->menuDevices->addAction(loadCameraAction);
 
     }
+
+    d_ui->apriltagSettings->setup(d_detector);
 
 }
 
@@ -47,12 +51,15 @@ void MainWindow::setCamera(Camera * camera) {
 	}
 
 	connect(camera,&Camera::newFrame,
+	        d_detector,&ApriltagDetector::processFrame,
+	        Qt::QueuedConnection);
+	connect(d_detector,&ApriltagDetector::frameProcessed,
 	        this,
-	        [this] ( cv::Mat frame ) {
+	        [this] ( cv::Mat frame, Detection::Ptr ) {
+		        std::cerr << "Processed Frame" << std::endl;
 		        cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
 		        d_ui->liveView->setPixmap(QPixmap::fromImage(QImage(frame.data,frame.cols,frame.rows,frame.step,QImage::Format_RGB888)));
-	        },
-	        Qt::QueuedConnection);
+	        });
 
 	d_camera->start();
 

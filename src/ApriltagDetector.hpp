@@ -5,6 +5,22 @@
 #include <opencv2/core.hpp>
 
 #include <fort/myrmidon/Types.hpp>
+
+#include <apriltag/apriltag.h>
+
+extern "C" {
+#include <apriltag/tag16h5.h>
+#include <apriltag/tag25h9.h>
+#include <apriltag/tag36h11.h>
+#include <apriltag/tagCircle21h7.h>
+#include <apriltag/tagCircle49h12.h>
+#include <apriltag/tagCustom48h12.h>
+#include <apriltag/tagStandard41h12.h>
+#include <apriltag/tagStandard52h13.h>
+#include <fort/tags/tag36ARTag.h>
+#include <fort/tags/tag36h10.h>
+}
+
 #include <fort/tags/fort-tags.h>
 
 struct Detection {
@@ -57,10 +73,12 @@ signals:
 
 private:
 
+	typedef std::function<void (apriltag_family_t *)> FamilyDestructor;
 
-	fort::tags::Family d_family;
-	quint32            d_minCluster;
-	quint8             d_threshold;
-
-
+	fort::tags::Family     d_family;
+	quint32               d_minCluster;
+	quint8                d_threshold;
+	apriltag_family_t   * d_atFamily;
+	apriltag_detector_t * d_detector;
+	FamilyDestructor      d_familyDestructor;
 };

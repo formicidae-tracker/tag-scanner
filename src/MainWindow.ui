@@ -34,7 +34,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Live Camera</string>
+           <string/>
           </property>
          </widget>
         </item>
