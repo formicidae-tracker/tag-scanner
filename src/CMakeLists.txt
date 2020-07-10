@@ -8,10 +8,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src
 
 set(SRC_FILES main.cpp
               MainWindow.cpp
-              CameraSettings.cpp)
+              CameraSettings.cpp
+              Camera.cpp)
 
 set(HDR_FILES MainWindow.hpp
-              CameraSettings.hpp)
+              CameraSettings.hpp
+              Camera.hpp)
 
 set(UI_FILES MainWindow.ui
              CameraSettings.ui)
