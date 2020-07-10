@@ -4,6 +4,8 @@
 
 #include <opencv2/videoio.hpp>
 
+class QTimer;
+
 Q_DECLARE_METATYPE(cv::Mat)
 
 class Camera : public QObject{
@@ -67,7 +69,6 @@ public:
 	qreal exposure() const override;
 	qreal focus() const override;
 
-
 public slots:
 	void setAutofocus(bool autofocus)  override;
 	void setGain(qreal gain)  override;
@@ -76,6 +77,9 @@ public slots:
 
 	void start() override;
 	void stop() override;
+private :
+	cv::Mat d_mat;
+	QTimer * d_timer;
 };
 
 

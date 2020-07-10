@@ -1,9 +1,13 @@
 #include "Camera.hpp"
 
 #include <opencv2/videoio.hpp>
+#include <opencv2/imgcodecs.hpp>
+
+#include <QTimer>
 
 Camera::Camera(QObject * parent)
-	: QObject(parent) {
+	: QObject(parent){
+
 }
 
 Camera::~Camera() {
@@ -18,7 +22,13 @@ void Camera::emitAllSignals() {
 
 StubCamera::StubCamera(const std::string & filename,
                        QObject * parent)
-	: Camera(parent) {
+	: Camera(parent)
+	, d_timer(new QTimer(this)) {
+	d_mat = cv::imread(filename);
+	connect(d_timer,&QTimer::timeout,
+	        this,[this]() {
+		             emit newFrame(d_mat.clone());
+	             });
 }
 
 StubCamera::~StubCamera() {
@@ -41,27 +51,32 @@ qreal StubCamera::focus() const {
 }
 
 void StubCamera::setAutofocus(bool autofocus) {
-
 }
 
 void StubCamera::setGain(qreal gain) {
-
+	if ( gain != 1.0 ) {
+		emit gainChanged(1.0);
+	}
 }
 
 void StubCamera::setExposure(qreal exposure) {
-
+	if ( exposure != 1.0 ) {
+		emit exposureChanged(1.0);
+	}
 }
 
 void StubCamera::setFocus(qreal focus) {
-
+	if ( focus != 1.0 ) {
+		emit focusChanged(1.0);
+	}
 }
 
 void StubCamera::start() {
-
+	d_timer->start(100);
 }
 
 void StubCamera::stop() {
-
+	d_timer->stop();
 }
 
 
@@ -72,7 +87,6 @@ CVCamera::CVCamera(int interface,
 
 CVCamera::~CVCamera() {
 }
-
 
 bool CVCamera::autofocusEnabled() const {
 	return true;

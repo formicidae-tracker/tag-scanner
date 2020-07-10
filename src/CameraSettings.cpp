@@ -67,10 +67,7 @@ void CameraSettings::setGain(qreal gain) {
 	d_ui->gain->setValue( 99 *  std::clamp(gain,0.0,1.0));
 }
 
-#include <iostream>
-
 void CameraSettings::setAutofocus(bool autofocus) {
-	std::cerr << "Coucou"<< std::endl;
 	d_ui->checkBox->setCheckState(autofocus? Qt::Checked : Qt::Unchecked);
 	d_ui->focus->setEnabled(autofocus == false);
 }

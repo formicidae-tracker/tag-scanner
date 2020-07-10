@@ -9,14 +9,17 @@ include_directories(${PROJECT_SOURCE_DIR}/src
 set(SRC_FILES main.cpp
               MainWindow.cpp
               CameraSettings.cpp
+              ApriltagSettings.cpp
               Camera.cpp)
 
 set(HDR_FILES MainWindow.hpp
               CameraSettings.hpp
+              ApriltagSettings.hpp
               Camera.hpp)
 
 set(UI_FILES MainWindow.ui
-             CameraSettings.ui)
+             CameraSettings.ui
+             ApriltagSettings.ui)
 
 set(RCC_FILES )
 

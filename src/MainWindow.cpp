@@ -7,6 +7,8 @@
 
 #include <QFileDialog>
 
+#include <opencv2/imgproc.hpp>
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
@@ -33,19 +35,26 @@ MainWindow::~MainWindow() {
 
 void MainWindow::setCamera(Camera * camera) {
 	if ( !d_camera ) {
-
 		delete d_camera;
 		d_camera = nullptr;
 	}
 
 	d_camera = camera;
-	d_ui->settings->setCamera(camera);
+	d_ui->cameraSettings->setCamera(camera);
 
 	if ( d_camera == nullptr ) {
 		return;
 	}
 
+	connect(camera,&Camera::newFrame,
+	        this,
+	        [this] ( cv::Mat frame ) {
+		        cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
+		        d_ui->liveView->setPixmap(QPixmap::fromImage(QImage(frame.data,frame.cols,frame.rows,frame.step,QImage::Format_RGB888)));
+	        },
+	        Qt::QueuedConnection);
 
+	d_camera->start();
 
 }
 
@@ -57,5 +66,9 @@ void MainWindow::on_actionLoadImage_triggered() {
 	if (filename.isEmpty()) {
 		return;
 	}
-	setCamera(new StubCamera(filename.toUtf8().constData(),this));
+	try {
+		setCamera(new StubCamera(filename.toUtf8().constData(),this));
+	} catch ( const std::exception & e)  {
+		d_ui->statusbar->showMessage(tr("Could not open %1: %2").arg(filename).arg(e.what()),2000);
+	}
 }

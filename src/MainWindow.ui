@@ -47,12 +47,12 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="tabSpacing">
            <number>6</number>
           </property>
-          <widget class="CameraSettings" name="settings">
+          <widget class="CameraSettings" name="cameraSettings">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -71,7 +71,7 @@
             <string>Camera Settings</string>
            </attribute>
           </widget>
-          <widget class="QWidget" name="page_2">
+          <widget class="ApriltagSettings" name="apriltagSettings">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -150,6 +150,12 @@
    <class>CameraSettings</class>
    <extends>QWidget</extends>
    <header>CameraSettings.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ApriltagSettings</class>
+   <extends>QWidget</extends>
+   <header>ApriltagSettings.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
