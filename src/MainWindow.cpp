@@ -11,6 +11,8 @@
 
 #include <opencv2/imgproc.hpp>
 
+#include <fort/myrmidon/Time.hpp>
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
@@ -74,13 +76,31 @@ void MainWindow::setCamera(Camera * camera) {
 					        QApplication::beep();
 					        d_camera->stop();
 					        d_lastDetectionCount = 1;
+					        emit newTag(detection->TagID);
 				        }
 			        } else {
 				        d_lastDetection = detection;
 				        d_lastDetectionCount = 1;
 			        }
 		        }
-	        });
+	        },
+	        Qt::QueuedConnection);
+
+	connect(this,&MainWindow::newTag,
+	        this,
+	        [this](quint32 newTag) {
+		        std::ostringstream now;
+		        now << fort::myrmidon::Time::Now().Round(fort::myrmidon::Duration::Second);
+		        auto tagStr = fort::myrmidon::FormatTagID(newTag);
+
+		        auto row = d_ui->tableWidget->rowCount();
+		        d_ui->tableWidget->insertRow(row);
+		        d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(now.str().c_str()));
+		        d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
+
+	        },
+	        Qt::QueuedConnection);
+
 
 	d_camera->start();
 

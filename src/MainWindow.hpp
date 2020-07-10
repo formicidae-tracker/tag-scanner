@@ -25,6 +25,11 @@ private slots:
 
 	void on_actionLoadImage_triggered();
 
+
+signals:
+
+	void newTag(quint32 );
+
 private:
     Ui::MainWindow * d_ui;
 
