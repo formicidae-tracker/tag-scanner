@@ -146,13 +146,13 @@ void CVCamera::stop() {
 std::map<int,std::string> CVCamera::Enumerate() {
 	std::map<int,std::string> res;
 
-	int device = 0;
+	int device = -1;
 	while(true) {
 		cv::VideoCapture camera(++device);
 		if ( camera.isOpened() == false) {
 			break;
 		}
-		res[device] = camera.getBackendName();
+		res[device] = "OpenCV camera " + std::to_string(device);
 	}
 	return res;
 }
