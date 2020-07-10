@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+find_package(OpenCV REQUIRED core imgcodecs imgproc videoio)
 
 
 
