@@ -18,6 +18,7 @@ void Camera::emitAllSignals() {
 	emit gainChanged(gain());
 	emit focusChanged(focus());
 	emit exposureChanged(exposure());
+	emit playing(false);
 }
 
 StubCamera::StubCamera(const std::string & filename,
@@ -73,10 +74,12 @@ void StubCamera::setFocus(qreal focus) {
 
 void StubCamera::start() {
 	d_timer->start(100);
+	emit playing(true);
 }
 
 void StubCamera::stop() {
 	d_timer->stop();
+	emit playing(false);
 }
 
 

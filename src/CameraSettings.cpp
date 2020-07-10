@@ -34,6 +34,8 @@ CameraSettings::CameraSettings(QWidget *parent)
 	            emit autofocusChanged(state == Qt::Checked);
 	            d_ui->focus->setEnabled(state == Qt::Unchecked);
             });
+    d_ui->playButton->setCheckable(true);
+
     setEnabled(false);
 }
 
@@ -124,6 +126,26 @@ void CameraSettings::setCamera(Camera * camera) {
 		           d_camera,&Camera::setGain);
 	connect(this,&CameraSettings::focusChanged,
 	        d_camera,&Camera::setFocus);
+
+	connect(d_ui->playButton, &QPushButton::clicked,
+	        camera,[this,camera](bool checked) {
+		        if ( checked == true ) {
+			        camera->start();
+		        } else {
+			        camera->stop();
+		        }
+	        });
+
+	connect(camera,&Camera::playing,
+	        this,[this](bool playing) {
+		        if ( playing == true ) {
+			        d_ui->playButton->setText(tr("Playing"));
+			        d_ui->playButton->setChecked(true);
+		        } else {
+			        d_ui->playButton->setText(tr("Play"));
+			        d_ui->playButton->setChecked(false);
+		        }
+	        });
 
 	camera->emitAllSignals();
 
