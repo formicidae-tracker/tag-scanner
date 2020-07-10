@@ -12,6 +12,15 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc videoio)
 
+find_package(PkgConfig REQUIRED)
+
+find_package(FortMyrmidon REQUIRED)
+find_package(FortTags REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+include_directories(${FORT_MYRMIDON_INCLUDE_DIRS}
+                    ${FORT_TAGS_INCLUDE_DIRS}
+                    ${EIGEN3_INCLUDE_DIRS})
 
 
 add_subdirectory(src)

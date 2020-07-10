@@ -28,8 +28,8 @@
         <item>
          <widget class="QLabel" name="liveView">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>3</horstretch>
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
@@ -38,51 +38,65 @@
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignTop">
-         <widget class="QToolBox" name="toolBox">
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>1</horstretch>
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="currentIndex">
-           <number>1</number>
+          <property name="widgetResizable">
+           <bool>true</bool>
           </property>
-          <property name="tabSpacing">
-           <number>6</number>
-          </property>
-          <widget class="CameraSettings" name="cameraSettings">
+          <widget class="QWidget" name="scrollAreaWidgetContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>188</width>
-             <height>68</height>
+             <width>161</width>
+             <height>470</height>
             </rect>
            </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <attribute name="label">
-            <string>Camera Settings</string>
-           </attribute>
-          </widget>
-          <widget class="ApriltagSettings" name="apriltagSettings">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>188</width>
-             <height>68</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Detection Settings</string>
-           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QGroupBox" name="groupBox">
+              <property name="title">
+               <string>Camera settings</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="CameraSettings" name="cameraSettings" native="true"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="title">
+               <string>Apriltag Settings</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="ApriltagSettings" name="apriltagSettings" native="true"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>

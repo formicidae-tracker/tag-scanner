@@ -10,11 +10,13 @@ set(SRC_FILES main.cpp
               MainWindow.cpp
               CameraSettings.cpp
               ApriltagSettings.cpp
+              ApriltagDetector.cpp
               Camera.cpp)
 
 set(HDR_FILES MainWindow.hpp
               CameraSettings.hpp
               ApriltagSettings.hpp
+              ApriltagDetector.hpp
               Camera.hpp)
 
 set(UI_FILES MainWindow.ui
