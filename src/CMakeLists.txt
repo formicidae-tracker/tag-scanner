@@ -3,11 +3,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 
-set(SRC_FILES main.cpp)
+set(SRC_FILES main.cpp
+	          MainWindow.cpp)
 
-set(HDR_FILES )
+set(HDR_FILES MainWindow.hpp)
 
-set(UI_FILES )
+set(UI_FILES MainWindow.ui)
 
 set(RCC_FILES )
 

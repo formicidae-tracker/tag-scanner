@@ -1,5 +1,6 @@
 #include <QApplication>
 
+#include "MainWindow.hpp"
 
 int main(int argc, char ** argv) {
 
@@ -10,6 +11,8 @@ int main(int argc, char ** argv) {
 
 	QApplication fortTagScanner(argc,argv);
 
+	MainWindow main;
+	main.show();
 
 
 	return fortTagScanner.exec();
