@@ -24,6 +24,7 @@ private slots:
 	void setCamera(Camera * camera);
 
 	void on_actionLoadImage_triggered();
+	void on_actionSaveDataAsCSV_triggered();
 
 	void togglePlayPause();
 

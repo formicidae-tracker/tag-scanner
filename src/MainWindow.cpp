@@ -14,6 +14,8 @@
 
 #include <fort/myrmidon/Time.hpp>
 
+#include <fstream>
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
@@ -37,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
     connect(togglePlayPauseShortcut,&QShortcut::activated,
             this,&MainWindow::togglePlayPause);
-
+    connect(d_ui->actionQuit,&QAction::triggered,
+            [this]() { close(); });
 }
 
 MainWindow::~MainWindow() {
@@ -139,4 +142,25 @@ void MainWindow::togglePlayPause() {
 	} else {
 		d_camera->start();
 	}
+}
+
+
+void MainWindow::on_actionSaveDataAsCSV_triggered() {
+	auto filename = QFileDialog::getSaveFileName(this,tr("Save data"),
+	                                             "",
+	                                             tr("CSV (*.csv)"));
+
+	if ( filename.isEmpty() ) {
+		return;
+	}
+
+	std::ofstream file(filename.toUtf8().constData());
+	file << "#Time,TagID" << std::endl;
+	for ( size_t i = 0; i < d_ui->tableWidget->rowCount(); ++i) {
+		file << d_ui->tableWidget->item(i,0)->text().toUtf8().constData()
+		     << ","
+		     << d_ui->tableWidget->item(i,1)->text().toUtf8().constData()
+		     << std::endl;
+	}
+
 }

@@ -135,7 +135,9 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSaveDataAsCVS"/>
+    <addaction name="actionSaveDataAsCSV"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuDevices">
     <property name="title">
@@ -170,12 +172,20 @@
     <string>Load Image</string>
    </property>
   </action>
-  <action name="actionSaveDataAsCVS">
+  <action name="actionSaveDataAsCSV">
    <property name="text">
-    <string>Save Data as CVS</string>
+    <string>Save Data as CSV</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>
