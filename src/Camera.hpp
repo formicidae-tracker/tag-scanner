@@ -106,4 +106,8 @@ public slots:
 
 	void start() override;
 	void stop() override;
+private:
+
+	cv::VideoCapture d_capture;
+	QTimer * d_timer;
 };

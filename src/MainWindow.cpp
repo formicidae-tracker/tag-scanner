@@ -28,7 +28,10 @@ MainWindow::MainWindow(QWidget *parent)
 	    auto loadCameraAction = new QAction(tr("Load camera %1").arg(name.c_str()),this);
 	    connect(loadCameraAction,&QAction::triggered,
 	            [this,i]() {
-		            setCamera(new CVCamera(i,this));
+		            try {
+			            setCamera(new CVCamera(i,this));
+		            } catch ( const std::exception & e) {
+		            }
 	            });
 	    d_ui->menuDevices->addAction(loadCameraAction);
 

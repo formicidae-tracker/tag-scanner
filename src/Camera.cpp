@@ -85,49 +85,62 @@ void StubCamera::stop() {
 
 CVCamera::CVCamera(int interface,
                    QObject * parent)
-	: Camera(parent) {
+	: Camera(parent)
+	, d_capture(interface)
+	, d_timer(new QTimer(this)) {
+	if ( d_capture.isOpened() == false ) {
+		throw std::runtime_error("Could not open interface");
+	}
+
+	connect(d_timer,&QTimer::timeout,
+	        this,[this]() {
+		             cv::Mat mat;
+		             d_capture >> mat;
+		             emit newFrame(mat);
+	             });
 }
 
 CVCamera::~CVCamera() {
 }
 
 bool CVCamera::autofocusEnabled() const {
-	return true;
+	return d_capture.get(cv::CAP_PROP_AUTOFOCUS);
 }
 
 qreal CVCamera::gain() const {
-	return 1.0;
+	return d_capture.get(cv::CAP_PROP_GAIN);;
 }
 
 qreal CVCamera::exposure() const {
-	return 1.0;
+	return d_capture.get(cv::CAP_PROP_EXPOSURE);
 }
 
 qreal CVCamera::focus() const {
-	return 1.0;
+	return d_capture.get(cv::CAP_PROP_FOCUS);;
 }
 
 void CVCamera::setAutofocus(bool autofocus) {
+	d_capture.set(cv::CAP_PROP_AUTOFOCUS,autofocus ? 1.0 : 0.0);
 }
 
 void CVCamera::setGain(qreal gain) {
-
+	d_capture.set(cv::CAP_PROP_GAIN,gain);
 }
 
 void CVCamera::setExposure(qreal exposure) {
-
+	d_capture.set(cv::CAP_PROP_EXPOSURE,exposure);
 }
 
 void CVCamera::setFocus(qreal focus) {
-
+	d_capture.set(cv::CAP_PROP_FOCUS,focus);
 }
 
 void CVCamera::start() {
-
+	d_timer->start(0);
 }
 
 void CVCamera::stop() {
-
+	d_timer->stop();
 }
 
 std::map<int,std::string> CVCamera::Enumerate() {
