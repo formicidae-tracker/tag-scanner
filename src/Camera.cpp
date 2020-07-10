@@ -8,42 +8,102 @@ Camera::Camera(QObject * parent)
 Camera::~Camera() {
 }
 
-bool Camera::autofocusEnabled() const {
+StubCamera::StubCamera(const std::string & filename,
+                       QObject * parent)
+	: Camera(parent) {
+}
+
+StubCamera::~StubCamera() {
+}
+
+
+bool StubCamera::autofocusEnabled() const {
 	return true;
 }
 
-qreal Camera::gain() const {
+qreal StubCamera::gain() const {
 	return 1.0;
 }
 
-qreal Camera::exposure() const {
+qreal StubCamera::exposure() const {
 	return 1.0;
 }
 
-qreal Camera::focus() const {
+qreal StubCamera::focus() const {
 	return 1.0;
 }
 
-void Camera::setAutofocus(bool autofocus) {
+void StubCamera::setAutofocus(bool autofocus) {
 
 }
 
-void Camera::setGain(qreal gain) {
+void StubCamera::setGain(qreal gain) {
 
 }
 
-void Camera::setExposure(qreal exposure) {
+void StubCamera::setExposure(qreal exposure) {
 
 }
 
-void Camera::setFocus(qreal focus) {
+void StubCamera::setFocus(qreal focus) {
 
 }
 
-void Camera::start() {
+void StubCamera::start() {
 
 }
 
-void Camera::stop() {
+void StubCamera::stop() {
+
+}
+
+
+
+CVCamera::CVCamera(int interface,
+                   QObject * parent)
+	: Camera(parent) {
+}
+
+CVCamera::~CVCamera() {
+}
+
+
+bool CVCamera::autofocusEnabled() const {
+	return true;
+}
+
+qreal CVCamera::gain() const {
+	return 1.0;
+}
+
+qreal CVCamera::exposure() const {
+	return 1.0;
+}
+
+qreal CVCamera::focus() const {
+	return 1.0;
+}
+
+void CVCamera::setAutofocus(bool autofocus) {
+
+}
+
+void CVCamera::setGain(qreal gain) {
+
+}
+
+void CVCamera::setExposure(qreal exposure) {
+
+}
+
+void CVCamera::setFocus(qreal focus) {
+
+}
+
+void CVCamera::start() {
+
+}
+
+void CVCamera::stop() {
 
 }

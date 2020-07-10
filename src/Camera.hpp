@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <opencv2/core.hpp>
+#include <opencv2/videoio.hpp>
 
 Q_DECLARE_METATYPE(cv::Mat)
 
@@ -28,20 +28,20 @@ public:
 	Camera(QObject * parent = nullptr);
 	virtual ~Camera();
 
-	bool autofocusEnabled() const;
-	qreal gain() const;
-	qreal exposure() const;
-	qreal focus() const;
+	virtual bool autofocusEnabled() const = 0;
+	virtual qreal gain() const = 0;
+	virtual qreal exposure() const = 0;
+	virtual qreal focus() const = 0;
 
 
 public slots:
-	void setAutofocus(bool autofocus);
-	void setGain(qreal gain);
-	void setExposure(qreal exposure);
-	void setFocus(qreal focus);
+	virtual void setAutofocus(bool autofocus) = 0;
+	virtual void setGain(qreal gain) = 0;
+	virtual void setExposure(qreal exposure) = 0;
+	virtual void setFocus(qreal focus) = 0;
 
-	void start();
-	void stop();
+	virtual void start() = 0;
+	virtual void stop() = 0;
 
 signals:
 	void autofocusChanged(bool autofocus);
@@ -51,4 +51,52 @@ signals:
 	void playing(bool playing);
 
 	void newFrame(cv::Mat);
+};
+
+
+class StubCamera : public Camera {
+	Q_OBJECT
+public:
+	StubCamera(const std::string & filename,
+	           QObject * parent);
+	virtual ~StubCamera();
+
+	bool autofocusEnabled() const override;
+	qreal gain() const override;
+	qreal exposure() const override;
+	qreal focus() const override;
+
+
+public slots:
+	void setAutofocus(bool autofocus)  override;
+	void setGain(qreal gain)  override;
+	void setExposure(qreal exposure)  override;
+	void setFocus(qreal focus) override;
+
+	void start() override;
+	void stop() override;
+};
+
+
+class CVCamera : public Camera {
+	Q_OBJECT
+public:
+	CVCamera(int index,
+	         QObject * parent);
+	virtual ~CVCamera();
+
+	bool autofocusEnabled() const override;
+	qreal gain() const override;
+	qreal exposure() const override;
+	qreal focus() const override;
+
+
+public slots:
+	void setAutofocus(bool autofocus) override;
+	void setGain(qreal gain) override;
+	void setExposure(qreal exposure) override;
+	void setFocus(qreal focus) override;
+
+	void start() override;
+	void stop() override;
 };
