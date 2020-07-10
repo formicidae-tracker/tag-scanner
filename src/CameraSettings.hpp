@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class Camera;
+
 namespace Ui {
 class CameraSettings;
 }
@@ -34,6 +36,8 @@ public:
 	qreal exposure() const;
 	qreal focus() const;
 
+	void setCamera(Camera * camera);
+
 public slots:
 	void setExposure(qreal exposure);
 	void setGain(qreal gain);
@@ -48,4 +52,5 @@ signals:
 
 private:
     Ui::CameraSettings * d_ui;
+	Camera             * d_camera;
 };

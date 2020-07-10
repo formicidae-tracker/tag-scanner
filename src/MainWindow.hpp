@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+class Camera;
+
 namespace Ui {
 class MainWindow;
 }
@@ -14,9 +16,12 @@ public:
 
 private slots:
 
+	void setCamera(Camera * camera);
 
-
+	void on_actionLoadImage_triggered();
 
 private:
     Ui::MainWindow * d_ui;
+
+	Camera * d_camera;
 };

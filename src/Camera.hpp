@@ -33,6 +33,7 @@ public:
 	virtual qreal exposure() const = 0;
 	virtual qreal focus() const = 0;
 
+	void emitAllSignals();
 
 public slots:
 	virtual void setAutofocus(bool autofocus) = 0;
@@ -81,6 +82,8 @@ public slots:
 class CVCamera : public Camera {
 	Q_OBJECT
 public:
+	static std::map<int,std::string> Enumerate();
+
 	CVCamera(int index,
 	         QObject * parent);
 	virtual ~CVCamera();

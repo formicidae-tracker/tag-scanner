@@ -1,11 +1,19 @@
 #include "Camera.hpp"
 
+#include <opencv2/videoio.hpp>
 
 Camera::Camera(QObject * parent)
 	: QObject(parent) {
 }
 
 Camera::~Camera() {
+}
+
+void Camera::emitAllSignals() {
+	emit autofocusChanged(autofocusEnabled());
+	emit gainChanged(gain());
+	emit focusChanged(focus());
+	emit exposureChanged(exposure());
 }
 
 StubCamera::StubCamera(const std::string & filename,
@@ -15,7 +23,6 @@ StubCamera::StubCamera(const std::string & filename,
 
 StubCamera::~StubCamera() {
 }
-
 
 bool StubCamera::autofocusEnabled() const {
 	return true;
@@ -58,7 +65,6 @@ void StubCamera::stop() {
 }
 
 
-
 CVCamera::CVCamera(int interface,
                    QObject * parent)
 	: Camera(parent) {
@@ -85,7 +91,6 @@ qreal CVCamera::focus() const {
 }
 
 void CVCamera::setAutofocus(bool autofocus) {
-
 }
 
 void CVCamera::setGain(qreal gain) {
@@ -106,4 +111,18 @@ void CVCamera::start() {
 
 void CVCamera::stop() {
 
+}
+
+std::map<int,std::string> CVCamera::Enumerate() {
+	std::map<int,std::string> res;
+
+	int device = 0;
+	while(true) {
+		cv::VideoCapture camera(++device);
+		if ( camera.isOpened() == false) {
+			break;
+		}
+		res[device] = camera.getBackendName();
+	}
+	return res;
 }

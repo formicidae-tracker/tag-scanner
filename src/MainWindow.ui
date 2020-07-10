@@ -115,6 +115,8 @@
     <property name="title">
      <string>Devices</string>
     </property>
+    <addaction name="actionLoadImage"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -137,6 +139,11 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <action name="actionLoadImage">
+   <property name="text">
+    <string>Load Image</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
