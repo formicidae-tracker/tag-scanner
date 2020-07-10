@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -135,6 +135,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSaveDataAsCVS"/>
    </widget>
    <widget class="QMenu" name="menuDevices">
     <property name="title">
@@ -167,6 +168,14 @@
   <action name="actionLoadImage">
    <property name="text">
     <string>Load Image</string>
+   </property>
+  </action>
+  <action name="actionSaveDataAsCVS">
+   <property name="text">
+    <string>Save Data as CVS</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

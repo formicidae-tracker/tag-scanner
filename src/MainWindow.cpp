@@ -8,6 +8,7 @@
 
 #include <QFileDialog>
 #include <QApplication>
+#include <QShortcut>
 
 #include <opencv2/imgproc.hpp>
 
@@ -32,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     d_ui->apriltagSettings->setup(d_detector);
+
+    auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
+    connect(togglePlayPauseShortcut,&QShortcut::activated,
+            this,&MainWindow::togglePlayPause);
 
 }
 
@@ -101,9 +106,11 @@ void MainWindow::setCamera(Camera * camera) {
 	        },
 	        Qt::QueuedConnection);
 
+	connect(d_camera,&Camera::playing,
+	        [this](bool playing) { d_playing = playing; } );
+
 
 	d_camera->start();
-
 }
 
 void MainWindow::on_actionLoadImage_triggered() {
@@ -118,5 +125,18 @@ void MainWindow::on_actionLoadImage_triggered() {
 		setCamera(new StubCamera(filename.toUtf8().constData(),this));
 	} catch ( const std::exception & e)  {
 		d_ui->statusbar->showMessage(tr("Could not open %1: %2").arg(filename).arg(e.what()),2000);
+	}
+}
+
+
+void MainWindow::togglePlayPause() {
+	if ( d_camera == nullptr ) {
+		return;
+	}
+
+	if ( d_playing ) {
+		d_camera->stop();
+	} else {
+		d_camera->start();
 	}
 }

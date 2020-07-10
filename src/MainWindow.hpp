@@ -25,6 +25,7 @@ private slots:
 
 	void on_actionLoadImage_triggered();
 
+	void togglePlayPause();
 
 signals:
 
@@ -38,5 +39,5 @@ private:
 
 	std::shared_ptr<Detection> d_lastDetection;
 	size_t                     d_lastDetectionCount;
-
+	bool                       d_playing;
 };
