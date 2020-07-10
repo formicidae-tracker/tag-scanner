@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class Detection;
+
 class Camera;
 
 namespace Ui {

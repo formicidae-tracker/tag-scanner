@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+
+class Detection;
+
 #include <QMainWindow>
 
 class Camera;
@@ -26,4 +30,8 @@ private:
 
 	Camera * d_camera;
 	ApriltagDetector * d_detector;
+
+	std::shared_ptr<Detection> d_lastDetection;
+	size_t                     d_lastDetectionCount;
+
 };

@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <QFileDialog>
+#include <QApplication>
 
 #include <opencv2/imgproc.hpp>
 
@@ -44,6 +45,8 @@ void MainWindow::setCamera(Camera * camera) {
 	}
 
 	d_camera = camera;
+	d_lastDetection.reset();
+	d_lastDetectionCount = 0;
 	d_ui->cameraSettings->setCamera(camera);
 
 	if ( d_camera == nullptr ) {
@@ -55,10 +58,28 @@ void MainWindow::setCamera(Camera * camera) {
 	        Qt::QueuedConnection);
 	connect(d_detector,&ApriltagDetector::frameProcessed,
 	        this,
-	        [this] ( cv::Mat frame, Detection::Ptr ) {
-		        std::cerr << "Processed Frame" << std::endl;
+	        [this] ( cv::Mat frame, Detection::Ptr detection) {
+		        static size_t i = 0;
 		        cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
 		        d_ui->liveView->setPixmap(QPixmap::fromImage(QImage(frame.data,frame.cols,frame.rows,frame.step,QImage::Format_RGB888)));
+		        if (!detection) {
+			        d_lastDetection.reset();
+			        d_lastDetectionCount = 0;
+		        } else if ( !d_lastDetection ) {
+			        d_lastDetection = detection;
+			        d_lastDetectionCount = 1;
+		        } else {
+			        if ( detection->TagID == d_lastDetection->TagID ) {
+				        if (++d_lastDetectionCount >= 4 ) {
+					        QApplication::beep();
+					        d_camera->stop();
+					        d_lastDetectionCount = 1;
+				        }
+			        } else {
+				        d_lastDetection = detection;
+				        d_lastDetectionCount = 1;
+			        }
+		        }
 	        });
 
 	d_camera->start();
