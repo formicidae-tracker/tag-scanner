@@ -29,12 +29,22 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QComboBox" name="family"/>
+    <widget class="QComboBox" name="family">
+     <property name="toolTip">
+      <string>Tag Family to use</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1">
     <widget class="QSpinBox" name="threshold">
+     <property name="toolTip">
+      <string>Pixel value difference needed for White / Block borders</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
      <property name="maximum">
-      <number>255</number>
+      <number>254</number>
      </property>
      <property name="value">
       <number>40</number>
@@ -49,17 +59,30 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSpinBox" name="minCluster"/>
+    <widget class="QSpinBox" name="minCluster">
+     <property name="toolTip">
+      <string>Minimum number of pixelk to consider a quad</string>
+     </property>
+     <property name="minimum">
+      <number>10</number>
+     </property>
+     <property name="maximum">
+      <number>1000</number>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Stop Trigger:</string>
+      <string>Save after N match:</string>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
     <widget class="QSpinBox" name="nbDetections">
+     <property name="toolTip">
+      <string>Save scan after N consecutive match</string>
+     </property>
      <property name="value">
       <number>4</number>
      </property>
