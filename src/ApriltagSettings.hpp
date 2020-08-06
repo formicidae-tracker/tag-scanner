@@ -24,6 +24,8 @@ public:
 	int numberDetections() const;
 
 public slots:
+	void saveSettings();
+	void loadSettings();
 	void setNumberDetections(int nbDetections);
 signals:
 	void numberDetectionsChanged(int value);

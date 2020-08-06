@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QShortcut>
+#include <QCloseEvent>
+#include <QSettings>
 
 #include <opencv2/imgproc.hpp>
 
@@ -20,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
 	, d_camera(nullptr)
-	, d_detector(new ApriltagDetector(this)){
+	, d_detector(new ApriltagDetector(this))
+	, d_needSave(false) {
     d_ui->setupUi(this);
 
     auto cameras = CVCamera::Enumerate();
@@ -44,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
             this,&MainWindow::togglePlayPause);
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
+
+    loadSettings();
 }
 
 MainWindow::~MainWindow() {
@@ -111,7 +116,7 @@ void MainWindow::setCamera(Camera * camera) {
 
 		        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
 		        d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
-
+		        d_needSave = true;
 	        },
 	        Qt::QueuedConnection);
 
@@ -174,4 +179,36 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 		     << "\"" << std::endl;
 	}
 
+	d_needSave = false;
+
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+	if ( maybeSave() ) {
+		saveSettings();
+		event->accept();
+	} else {
+		event->ignore();
+	}
+}
+
+
+bool MainWindow::maybeSave() {
+	return true;
+}
+
+void MainWindow::loadSettings() {
+	QSettings settings;
+	auto geometry = settings.value("geometry", QByteArray()).toByteArray();
+	if ( geometry.isEmpty() == false ) {
+		restoreGeometry(geometry);
+	}
+	d_ui->apriltagSettings->loadSettings();
+
+}
+
+void MainWindow::saveSettings() {
+	QSettings settings;
+	settings.setValue("geometry", saveGeometry());
+	d_ui->apriltagSettings->saveSettings();
 }

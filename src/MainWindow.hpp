@@ -19,8 +19,14 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
+signals:
+	void newTag(quint32 );
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
+
+private slots:
 	void setCamera(Camera * camera);
 
 	void on_actionLoadImage_triggered();
@@ -28,11 +34,11 @@ private slots:
 
 	void togglePlayPause();
 
-signals:
-
-	void newTag(quint32 );
-
 private:
+	bool maybeSave();
+	void saveSettings();
+	void loadSettings();
+
     Ui::MainWindow * d_ui;
 
 	Camera * d_camera;
@@ -41,4 +47,5 @@ private:
 	std::shared_ptr<Detection> d_lastDetection;
 	size_t                     d_lastDetectionCount;
 	bool                       d_playing;
+	bool                       d_needSave;
 };

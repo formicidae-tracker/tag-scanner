@@ -3,6 +3,8 @@
 
 #include "ApriltagDetector.hpp"
 
+#include <QSettings>
+
 #include <fort/tags/fort-tags.h>
 
 ApriltagSettings::ApriltagSettings(QWidget *parent)
@@ -75,4 +77,24 @@ void ApriltagSettings::setNumberDetections(int nbDetections) {
 		return;
 	}
 	d_ui->nbDetections->setValue(nbDetections);
+}
+
+void ApriltagSettings::saveSettings() {
+	QSettings settings;
+	if ( d_ui->family->currentIndex() == -1 ) {
+		settings.remove("at/family");
+	} else {
+		settings.setValue("at/family",d_ui->family->currentData());
+	}
+	settings.setValue("at/threshold",d_ui->threshold->value());
+	settings.setValue("at/cluster-size",d_ui->minCluster->value());
+	settings.setValue("at/nb-detections",d_ui->nbDetections->value());
+}
+
+void ApriltagSettings::loadSettings() {
+	QSettings settings;
+	d_ui->family->setCurrentIndex(d_ui->family->findData(settings.value("at/family",int(fort::tags::Family::Undefined))));
+	d_ui->threshold->setValue(settings.value("at/threshold",40).toInt());
+	d_ui->minCluster->setValue(settings.value("at/cluster-size",25).toInt());
+	d_ui->nbDetections->setValue(settings.value("at/nb-detections",6).toInt());
 }
