@@ -11,6 +11,7 @@
 #include <QShortcut>
 #include <QCloseEvent>
 #include <QSettings>
+#include <QMessageBox>
 
 #include <opencv2/imgproc.hpp>
 
@@ -47,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
             this,&MainWindow::togglePlayPause);
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
+
+    d_ui->actionSaveDataAsCSV->setEnabled(false);
 
     loadSettings();
 }
@@ -117,6 +120,7 @@ void MainWindow::setCamera(Camera * camera) {
 		        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
 		        d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
 		        d_needSave = true;
+		        d_ui->actionSaveDataAsCSV->setEnabled(true);
 	        },
 	        Qt::QueuedConnection);
 
@@ -180,6 +184,7 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 	}
 
 	d_needSave = false;
+	d_ui->actionSaveDataAsCSV->setEnabled(false);
 
 }
 
@@ -194,7 +199,27 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 
 bool MainWindow::maybeSave() {
-	return true;
+	if ( d_needSave == false ) {
+		return true;
+	}
+
+	const QMessageBox::StandardButton ret
+        = QMessageBox::warning(this, tr("FORT Tag Scanner"),
+                               tr("New scanned data has not been saved yet.\n"
+                                  "Do you want to save the acquired scans?"),
+                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    switch (ret) {
+    case QMessageBox::Save:
+        on_actionSaveDataAsCSV_triggered();
+        return d_needSave == false;
+    case QMessageBox::Cancel:
+        return false;
+    case QMessageBox::Discard:
+	    return true;
+    default:
+        break;
+    }
+    return false;
 }
 
 void MainWindow::loadSettings() {
