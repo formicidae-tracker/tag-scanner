@@ -6,6 +6,8 @@ class Detection;
 
 #include <QMainWindow>
 
+#include <fort/myrmidon/Experiment.hpp>
+
 class Camera;
 class ApriltagDetector;
 
@@ -32,9 +34,14 @@ private slots:
 	void on_actionLoadImage_triggered();
 	void on_actionSaveDataAsCSV_triggered();
 
+	void on_actionLoadMyrmidonFile_triggered();
+	void on_actionUnloadMyrmidonFile_triggered();
+	void on_myrmidonButton_clicked();
+
 	void togglePlayPause();
 
 private:
+	typedef std::shared_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
 	bool maybeSave();
 	void saveSettings();
 	void loadSettings();
@@ -48,4 +55,7 @@ private:
 	size_t                     d_lastDetectionCount;
 	bool                       d_playing;
 	bool                       d_needSave;
+
+
+	TrackingSolverPtr d_trackingSolver;
 };

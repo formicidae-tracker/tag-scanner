@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>972</width>
+    <height>621</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,6 +46,12 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -54,8 +60,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>161</width>
-             <height>470</height>
+             <width>182</width>
+             <height>477</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -79,6 +85,29 @@
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
                 <widget class="ApriltagSettings" name="apriltagSettings" native="true"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_3">
+              <property name="title">
+               <string>Myrmidon File</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="0" column="0" colspan="2">
+                <widget class="QLabel" name="myrmidonFileLabel">
+                 <property name="text">
+                  <string>File Loaded: None</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QPushButton" name="myrmidonButton">
+                 <property name="text">
+                  <string>Load Myrmidon file</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -151,7 +180,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>972</width>
      <height>22</height>
     </rect>
    </property>
@@ -159,6 +188,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionLoadMyrmidonFile"/>
+    <addaction name="actionUnloadMyrmidonFile"/>
     <addaction name="actionSaveDataAsCSV"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -210,6 +241,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionLoadMyrmidonFile">
+   <property name="text">
+    <string>Load Myrmidon File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionUnloadMyrmidonFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Unload Myrmidon File</string>
    </property>
   </action>
  </widget>

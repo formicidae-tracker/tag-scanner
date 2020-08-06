@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     d_ui->actionSaveDataAsCSV->setEnabled(false);
 
     loadSettings();
+    on_actionUnloadMyrmidonFile_triggered();
 }
 
 MainWindow::~MainWindow() {
@@ -108,16 +109,28 @@ void MainWindow::setCamera(Camera * camera) {
 	connect(this,&MainWindow::newTag,
 	        this,
 	        [this](quint32 newTag) {
-		        std::ostringstream now;
-		        now << fort::myrmidon::Time::Now().Round(fort::myrmidon::Duration::Second);
+		        auto now = fort::myrmidon::Time::Now();
+		        std::ostringstream nowStr;
+		        nowStr << now.Round(fort::myrmidon::Duration::Second);
 		        auto tagStr = fort::myrmidon::FormatTagID(newTag);
 
 		        auto row = d_ui->tableWidget->rowCount();
 		        d_ui->tableWidget->insertRow(row);
-		        d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(now.str().c_str()));
+		        d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(nowStr.str().c_str()));
 		        d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
 
-		        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
+		        if ( !d_trackingSolver == true ) {
+			        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
+		        } else {
+			        auto antID = d_trackingSolver->IdentifyTag(newTag,now);
+			        QString antIDStr;
+			        if ( antID != 0 ) {
+				        antIDStr = QString::number(int(antID));
+			        }
+
+			        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(antIDStr));
+		        }
+
 		        d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
 		        d_needSave = true;
 		        d_ui->actionSaveDataAsCSV->setEnabled(true);
@@ -236,4 +249,48 @@ void MainWindow::saveSettings() {
 	QSettings settings;
 	settings.setValue("geometry", saveGeometry());
 	d_ui->apriltagSettings->saveSettings();
+}
+
+
+void MainWindow::on_actionLoadMyrmidonFile_triggered() {
+	if ( !d_trackingSolver == false ) {
+		on_actionUnloadMyrmidonFile_triggered();
+	}
+
+	auto filename = QFileDialog::getOpenFileName(this,
+	                                             tr("Open a myrmidon file"),
+	                                             QString(),
+	                                             tr("Images (*.myrmidon)"));
+
+	if ( filename.isEmpty() ) {
+		return;
+	}
+	using namespace fort::myrmidon;
+	try {
+		auto experiment = std::make_shared<CExperiment>(Experiment::OpenDataLess(filename.toUtf8().constData()));
+		d_trackingSolver = std::make_shared<TrackingSolver>(experiment->CompileTrackingSolver());
+		d_ui->myrmidonFileLabel->setText(tr("File loaded: %1").arg(experiment->AbsoluteFilePath().c_str()));
+		d_ui->actionUnloadMyrmidonFile->setEnabled(true);
+		d_ui->myrmidonButton->setText(tr("Unload Myrmidon File"));
+	} catch ( const std::exception & e) {
+		QMessageBox::warning(this,tr("Could not open file"),tr("Could not open file %1: %2").arg(filename).arg(e.what()));
+		return;
+	}
+
+}
+
+void MainWindow::on_actionUnloadMyrmidonFile_triggered() {
+	d_trackingSolver.reset();
+		d_ui->myrmidonFileLabel->setText(tr("File loaded: None"));
+		d_ui->actionUnloadMyrmidonFile->setEnabled(false);
+		d_ui->myrmidonButton->setText(tr("Load Myrmidon File"));
+
+}
+
+void MainWindow::on_myrmidonButton_clicked() {
+	if ( !d_trackingSolver == true ) {
+		on_actionLoadMyrmidonFile_triggered();
+	} else {
+		on_actionUnloadMyrmidonFile_triggered();
+	}
 }
