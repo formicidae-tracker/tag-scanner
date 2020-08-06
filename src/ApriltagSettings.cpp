@@ -22,6 +22,13 @@ ApriltagSettings::ApriltagSettings(QWidget *parent)
     d_ui->family->addItem("Custom48h12",quint32(fort::tags::Family::Custom48h12));
 
     d_ui->family->setCurrentIndex(-1);
+
+
+    connect(d_ui->nbDetections,static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,[this](int value) {
+	            emit numberDetectionsChanged(value);
+            });
+
 }
 
 ApriltagSettings::~ApriltagSettings(){
@@ -55,4 +62,17 @@ void ApriltagSettings::setup(ApriltagDetector *d) {
 	        Qt::QueuedConnection);
 
 
+}
+
+
+int ApriltagSettings::numberDetections() const {
+	return d_ui->nbDetections->value();
+}
+
+
+void ApriltagSettings::setNumberDetections(int nbDetections) {
+	if ( nbDetections == d_ui->nbDetections->value() ) {
+		return;
+	}
+	d_ui->nbDetections->setValue(nbDetections);
 }
