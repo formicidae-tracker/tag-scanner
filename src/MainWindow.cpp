@@ -83,7 +83,7 @@ void MainWindow::setCamera(Camera * camera) {
 			        d_lastDetectionCount = 1;
 		        } else {
 			        if ( detection->TagID == d_lastDetection->TagID ) {
-				        if (++d_lastDetectionCount >= 4 ) {
+				        if (++d_lastDetectionCount >= d_ui->apriltagSettings->numberDetections() ) {
 					        QApplication::beep();
 					        d_camera->stop();
 					        d_lastDetectionCount = 1;
@@ -108,6 +108,9 @@ void MainWindow::setCamera(Camera * camera) {
 		        d_ui->tableWidget->insertRow(row);
 		        d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(now.str().c_str()));
 		        d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
+
+		        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
+		        d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
 
 	        },
 	        Qt::QueuedConnection);
@@ -158,12 +161,17 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 	}
 
 	std::ofstream file(filename.toUtf8().constData());
-	file << "#Time,TagID" << std::endl;
+	file << "#Time,TagID,AntID,Comment" << std::endl;
 	for ( size_t i = 0; i < d_ui->tableWidget->rowCount(); ++i) {
-		file << d_ui->tableWidget->item(i,0)->text().toUtf8().constData()
-		     << ","
+		file << "\"" \
+		     << d_ui->tableWidget->item(i,0)->text().toUtf8().constData()
+		     << "\",\""
 		     << d_ui->tableWidget->item(i,1)->text().toUtf8().constData()
-		     << std::endl;
+		     << "\",\""
+		     << d_ui->tableWidget->item(i,2)->text().toUtf8().constData()
+		     << "\",\""
+		     << d_ui->tableWidget->item(i,3)->text().toUtf8().constData()
+		     << "\"" << std::endl;
 	}
 
 }
