@@ -92,10 +92,15 @@ CVCamera::CVCamera(int interface,
 		throw std::runtime_error("Could not open interface");
 	}
 
+	d_capture.set(cv::CAP_PROP_FPS,10);
+
 	connect(d_timer,&QTimer::timeout,
 	        this,[this]() {
 		             cv::Mat mat;
 		             d_capture >> mat;
+		             if ( mat.empty() ) {
+			             return;
+		             }
 		             emit newFrame(mat);
 	             });
 }
