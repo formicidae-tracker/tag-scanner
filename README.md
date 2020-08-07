@@ -54,7 +54,7 @@ default, which is the purpose of `fort-tag-scanner`. You will need to
 manually allow the `fort-tag-scanner` to access the system camera.
 
 ``` bash
-sudo snap connections fort-tag-scanner:camera :camera
+sudo snap connect fort-tag-scanner:camera :camera
 ```
 
 ### Installation from sources

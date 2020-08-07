@@ -16,7 +16,7 @@ access camera by using the following command (and -1 kudos for not
 reading the installation instructions completely).
 
 ``` bash
-sudo snap connections fort-tag-scanner:camera :camera
+sudo snap connect fort-tag-scanner:camera :camera
 ```
 
 ## Detecting tags
