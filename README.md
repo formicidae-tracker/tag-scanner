@@ -25,7 +25,8 @@
 </p>
 
 ## About the project
-[![Product Name Screen Shot][screenshot.png]](https://github.com/formicidae-tracker/tag-scanner)
+
+[![Product Name Screen Shot](screenshot.png)](https://github.com/formicidae-tracker/tag-scanner)
 
 FORT Tag Scanner is a simple tag scanner that allow you to list tags
 and save them to a CSV.
