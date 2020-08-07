@@ -1,0 +1,63 @@
+name: fort-tag-scanner
+version: "0.1-rc1"
+summary:  A Tag Scanner for the FORmicidae Tracker
+description: |
+  fort-tag-scanner is a small graphical application that uses a webcam
+  to scan tags, and report them in a CSV. It can also load a myrmidon
+  file to match automatically AntID from the scanned tags.
+base: core20
+confinement: strict
+parts:
+  myrmidon:
+    plugin: cmake
+    source-type: git
+    source: https://github.com/formicidae-tracker/studio.git
+    source-branch: dev/data-less
+    build-packages:
+      - g++
+      - make
+      - git
+      - libeigen3-dev
+      - libopencv-dev
+      - libprotobuf-dev
+      - protobuf-compiler
+      - qtbase5-dev
+      - libasio-dev
+      - libboost-dev
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+    stage:
+      - usr/include/apriltag/
+      - usr/include/fort/
+      - usr/lib/libfort-*
+      - usr/lib/libapriltag*
+      - usr/lib/FortMyrmidon
+      - usr/lib/FortHermesCpp
+      - usr/lib/FortTags
+  tag-scanner:
+    plugin: cmake
+    source-type: git
+    source: https://github.com/formicidae-tracker/tag-scanner.git
+    stage-packages:
+      - libqt5widgets5
+      - libopencv-videoio4.2
+      - libprotobuf17
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_PREFIX_PATH=/root/stage/usr/
+    after:
+      - myrmidon
+apps:
+  fort-tag-scanner:
+    command: usr/bin/fort-tag-scanner
+    environment:
+      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP_DESKTOP_RUNTIME/usr/lib/$ARCH/qt5/libs"
+      QT_PLUGIN_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET"
+#      QT_QPA_PLATFORMTHEME: "gtk3"
+    plugs:
+      - camera
+      - home
+      - x11
+      - desktop
+      - desktop-legacy
+      - wayland

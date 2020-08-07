@@ -12,10 +12,7 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 find_package(OpenCV REQUIRED core imgcodecs imgproc videoio)
 
-
 find_package(FortMyrmidon REQUIRED)
-find_package(FortTags REQUIRED)
-find_package(Eigen3 REQUIRED)
 
 find_library(APRILTAG_LIBRARIES apriltag)
 
