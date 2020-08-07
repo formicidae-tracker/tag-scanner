@@ -1,5 +1,5 @@
 name: fort-tag-scanner
-version: "0.1-rc1"
+version: "0.1.0"
 summary:  A Tag Scanner for the FORmicidae Tracker
 description: |
   fort-tag-scanner is a small graphical application that uses a webcam
