@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=FOrmicidae Tracker Tag Scanner
+GenericName=FORT Tag Scanner
+Comment=FORT Tag Scanner allows you to manually tag scan and save the list in a CSV file.
+TryExec=fort-tag-scanner
+Exec=fort-tag-scanner
+Icon=${SNAP}/meta/gui/fort-tag-scanner.png
+Type=Application
+Terminal=false
+Categories=Science;
+Keywords=FORmicidae Tracker;FORT;
