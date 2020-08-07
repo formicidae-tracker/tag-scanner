@@ -142,10 +142,12 @@ void CVCamera::setFocus(qreal focus) {
 
 void CVCamera::start() {
 	d_timer->start(0);
+	emit playing(true);
 }
 
 void CVCamera::stop() {
 	d_timer->stop();
+	emit playing(false);
 }
 
 std::map<int,std::string> CVCamera::Enumerate() {

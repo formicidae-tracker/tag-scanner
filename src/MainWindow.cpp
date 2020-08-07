@@ -138,7 +138,9 @@ void MainWindow::setCamera(Camera * camera) {
 	        Qt::QueuedConnection);
 
 	connect(d_camera,&Camera::playing,
-	        [this](bool playing) { d_playing = playing; } );
+	        [this](bool playing) {
+		        d_playing = playing;
+	        });
 
 
 	d_camera->start();
