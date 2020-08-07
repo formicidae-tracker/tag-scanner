@@ -71,7 +71,7 @@ You will need this additional dependencies:
 entry in the system. Alternatively you can manually launch the
 `fort-tag-scanner` command from a terminal.
 
-Please refer to [Manual.md](manual.md) to refer on how to use the
+Please refer to [Manual.md](Manual.md) to refer on how to use the
 application.
 
 ## Authors
