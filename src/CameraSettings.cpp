@@ -16,6 +16,15 @@ CameraSettings::CameraSettings(QWidget *parent)
     connect(d_ui->fpsBox,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,&CameraSettings::updateViewfinderSettings);
 
+    connect(d_ui->focusBox,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,&CameraSettings::updateFocusMode);
+
+    connect(d_ui->opticalSlider,&QAbstractSlider::valueChanged,
+            this, &CameraSettings::updateOpticalZoom);
+
+    connect(d_ui->digitalSlider,&QAbstractSlider::valueChanged,
+            this, &CameraSettings::updateDigitalZoom);
+
 }
 
 CameraSettings::~CameraSettings() {
@@ -32,10 +41,13 @@ bool operator<(const QSize & a, const QSize & b) {
 void CameraSettings::setCamera(QCamera * camera) {
 	d_camera = nullptr;
 	if ( camera == nullptr ) {
+		setFocus(nullptr);
 		setEnabled(false);
 		return;
 	}
 	setEnabled(true);
+
+	setFocus(camera->focus());
 
 
 	d_resolutionAndFPS.clear();
@@ -63,6 +75,10 @@ void CameraSettings::setCamera(QCamera * camera) {
 	if (settings.isEmpty() == false && loadSettings() == false ) {
 		auto preferred = settings.front();
 		d_ui->resolutionBox->setCurrentIndex(d_ui->resolutionBox->findData(preferred.resolution()));
+	}
+
+	if ( d_ui->focusBox->count() > 0 ) {
+		d_ui->focusBox->setCurrentIndex(0);
 	}
 }
 
@@ -129,4 +145,92 @@ void CameraSettings::writeSettings() {
 	QSettings settings;
 	settings.setValue("camera/resolution",d_ui->resolutionBox->currentData().toSize());
 	settings.setValue("camera/fps",d_ui->fpsBox->currentData().toDouble());
+}
+
+void CameraSettings::setFocus(QCameraFocus * focus) {
+	d_focus = focus;
+	d_ui->focusBox->clear();
+	if ( focus == nullptr ) {
+		d_ui->focusBox->setEnabled(false);
+		d_ui->digitalSlider->setEnabled(false);
+		d_ui->opticalSlider->setEnabled(false);
+		return;
+	}
+
+	std::map<QString,QCameraFocus::FocusModes> modes
+		= {
+		   {tr("Manual Focus"),QCameraFocus::ManualFocus},
+		   {tr("Hyperfocal Focus"),QCameraFocus::HyperfocalFocus},
+		   {tr("Infinity Focus"),QCameraFocus::InfinityFocus},
+		   {tr("Continuous Focus"),QCameraFocus::ContinuousFocus},
+		   {tr("Macro Focus"),QCameraFocus::MacroFocus},
+	};
+
+	for ( const auto & [name,mode] : modes ) {
+		if ( d_focus->isFocusModeSupported(mode) == false ) {
+			continue;
+		}
+		d_ui->focusBox->addItem(name,int(mode));
+	}
+	d_ui->focusBox->setCurrentIndex(-1);
+	d_ui->focusBox->setEnabled(d_ui->focusBox->count() > 0 );
+
+	d_ui->opticalSlider->setEnabled(opticalZoomSupported());
+	d_ui->digitalSlider->setEnabled(digitalZoomSupported());
+
+}
+
+void CameraSettings::updateFocusMode() {
+	if ( d_camera == nullptr
+	     || d_focus == nullptr
+	     || d_ui->focusBox->currentIndex() < 0 ) {
+		return;
+	}
+
+	d_focus->setFocusMode(QCameraFocus::FocusModes(d_ui->focusBox->currentData().toInt()));
+}
+
+
+void CameraSettings::updateOpticalZoom() {
+	if ( d_camera == nullptr
+	     || opticalZoomSupported() == false ) {
+		return;
+	}
+	d_focus->zoomTo(opticalZoomValue(),
+	                digitalZoomValue());
+}
+
+#include <iostream>
+
+void CameraSettings::updateDigitalZoom() {
+	if ( d_camera == nullptr
+	     || digitalZoomSupported() == false ) {
+		return;
+	}
+	std::cerr << "Zooming to " << opticalZoomValue() << "," << digitalZoomValue() << std::endl;
+	d_focus->zoomTo(opticalZoomValue(),
+	                digitalZoomValue());
+}
+
+qreal CameraSettings::opticalZoomValue() const {
+	if ( opticalZoomSupported() == false ) {
+		return 1.0;
+	}
+	return (d_ui->opticalSlider->value())/ 200.0 * d_focus->maximumOpticalZoom();
+}
+
+qreal CameraSettings::digitalZoomValue() const {
+	if ( digitalZoomSupported() == false ) {
+		return 1.0;
+	}
+	return (d_ui->digitalSlider->value())/ 200.0 * d_focus->maximumDigitalZoom();
+}
+
+
+bool CameraSettings::opticalZoomSupported() const {
+	return d_focus != nullptr && d_focus->maximumOpticalZoom() != 1.0;
+}
+
+bool CameraSettings::digitalZoomSupported() const {
+	return d_focus != nullptr && d_focus->maximumDigitalZoom() != 1.0;
 }
