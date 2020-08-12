@@ -35,8 +35,6 @@ add_executable(fort-tag-scanner ${SRC_FILES}
 target_link_libraries(fort-tag-scanner Qt5::Widgets
                                        ${OpenCV_LIBS}
                                        ${FORT_MYRMIDON_LIBRARIES}
-                                       ${APRILTAG_LIBRARIES}
-                                       ${FORT_TAGS_LIBRARIES}
                                        )
 
 set_target_properties(fort-tag-scanner PROPERTIES VERSION ${PROJECT_VERSION})
