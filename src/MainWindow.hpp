@@ -52,6 +52,7 @@ private:
 	QCamera       * d_camera;
 	DetectionView * d_detectionView;
 	bool            d_needSave;
+	bool            d_cameraLoaded;
 
 	TrackingSolverPtr d_trackingSolver;
 };

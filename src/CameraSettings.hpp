@@ -16,7 +16,16 @@ public:
 
 	void setCamera(QCamera * camera);
 
+private slots:
+	void updateViewfinderSettings();
+	void updateFPSBox();
+
 private:
+	bool loadSettings();
+	void writeSettings();
+
     Ui::CameraSettings * d_ui;
 	QCamera             * d_camera;
+
+	std::map<QSize,std::vector<qreal>> d_resolutionAndFPS;
 };

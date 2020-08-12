@@ -25,7 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_ui(new Ui::MainWindow)
 	, d_camera(nullptr)
 	, d_detectionView(new DetectionView(this))
-	, d_needSave(false) {
+	, d_needSave(false)
+	, d_cameraLoaded(false) {
     d_ui->setupUi(this);
 
     auto cameraInfos = QCameraInfo::availableCameras();
@@ -78,18 +79,27 @@ void MainWindow::setCamera(QCamera * camera) {
 		delete d_camera;
 		d_camera = nullptr;
 	}
-
+	d_cameraLoaded = false;
 	d_camera = camera;
-	d_ui->cameraSettings->setCamera(camera);
 
 	if ( d_camera == nullptr ) {
 		d_ui->detectButton->setEnabled(false);
 		return;
 	}
+
+	connect(d_camera,&QCamera::statusChanged,
+	        this,[this](QCamera::Status status) {
+		            if ( status != QCamera::LoadedStatus || d_cameraLoaded == true) {
+			            return;
+		            }
+		            d_cameraLoaded = true;
+		            d_ui->cameraSettings->setCamera(d_camera);
+		            d_camera->start();
+	            });
+
 	d_ui->detectButton->setEnabled(true);
 	d_camera->setViewfinder(d_detectionView);
-
-	d_camera->start();
+	d_camera->load();
 }
 
 void MainWindow::on_actionLoadImage_triggered() {
