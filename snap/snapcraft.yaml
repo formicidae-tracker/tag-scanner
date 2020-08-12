@@ -37,6 +37,7 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/formicidae-tracker/tag-scanner.git
+    source-tag: v0.2.0
     build-packages:
       - qtmultimedia5-dev
       - libqt5multimedia5-plugins
