@@ -26,15 +26,24 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="liveView">
+         <widget class="QGraphicsView" name="liveView">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string/>
+          <property name="backgroundBrush">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </property>
+          <property name="interactive">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -61,10 +70,17 @@
              <x>0</x>
              <y>0</y>
              <width>182</width>
-             <height>477</height>
+             <height>491</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QPushButton" name="detectButton">
+              <property name="text">
+               <string>Detect</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="QGroupBox" name="groupBox">
               <property name="title">

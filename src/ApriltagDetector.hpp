@@ -25,7 +25,7 @@ struct Detection {
 
 Q_DECLARE_METATYPE(fort::tags::Family)
 
-class QVideoFrame;
+class QImage;
 
 class ApriltagDetector : public QObject {
 	Q_OBJECT
@@ -49,7 +49,7 @@ public:
 	quint8 threshold() const;
 	quint32 clusterMinSize() const;
 
-	Detection::Ptr processVideoFrame(const QVideoFrame & frame);
+	Detection::Ptr processImage(const QImage & image);
 
 public slots:
 	void setFamily(fort::tags::Family family);

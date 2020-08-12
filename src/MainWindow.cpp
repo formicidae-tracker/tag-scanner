@@ -1,7 +1,7 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "ApriltagDetector.hpp"
+#include "DetectionView.hpp"
 
 #include <iostream>
 
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
 	, d_camera(nullptr)
-	, d_detector(new ApriltagDetector(this))
+	, d_detectionView(new DetectionView(this))
 	, d_needSave(false) {
     d_ui->setupUi(this);
 
@@ -38,48 +38,33 @@ MainWindow::MainWindow(QWidget *parent)
 	    d_ui->menuDevices->addAction(loadCameraAction);
     }
 
-    d_ui->apriltagSettings->setup(d_detector);
+    d_detectionView->setApriltagSettings(d_ui->apriltagSettings);
+    d_detectionView->setView(d_ui->liveView);
+
 
     auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
     connect(togglePlayPauseShortcut,&QShortcut::activated,
-            this,&MainWindow::togglePlayPause);
+            this,&MainWindow::toggleDetection);
+    connect(d_ui->detectButton,&QPushButton::clicked,
+            this,&MainWindow::toggleDetection);
+    connect(d_detectionView,&DetectionView::detectionActiveChanged,
+            this,[this](bool active) {
+	                 d_ui->detectButton->setText(active ? tr("Pause Detection") : tr("Detect"));
+                 });
+
+    d_ui->detectButton->setEnabled(false);
+
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
 
-    d_ui->actionSaveDataAsCSV->setEnabled(false);
-
-    loadSettings();
-    on_actionUnloadMyrmidonFile_triggered();
-}
-
-MainWindow::~MainWindow() {
-    delete d_ui;
-}
-
-
-void MainWindow::setCamera(QCamera * camera) {
-	if ( d_camera != nullptr ) {
-		d_camera->deleteLater();
-		d_camera = nullptr;
-	}
-
-	d_camera = camera;
-	d_lastDetection.reset();
-	d_lastDetectionCount = 0;
-	d_ui->cameraSettings->setCamera(camera);
-
-	if ( d_camera == nullptr ) {
-		return;
-	}
-
-
-	connect(this,&MainWindow::newTag,
+	connect(d_detectionView,&DetectionView::newTag,
 	        this,
-	        [this](quint32 newTag) {
+	        [this](quint32 tagID) {
+		        QApplication::beep();
 		        auto now = fort::myrmidon::Time::Now();
 		        std::ostringstream nowStr;
 		        nowStr << now.Round(fort::myrmidon::Duration::Second);
-		        auto tagStr = fort::myrmidon::FormatTagID(newTag);
+		        auto tagStr = fort::myrmidon::FormatTagID(tagID);
 
 		        auto row = d_ui->tableWidget->rowCount();
 		        d_ui->tableWidget->insertRow(row);
@@ -89,7 +74,7 @@ void MainWindow::setCamera(QCamera * camera) {
 		        if ( !d_trackingSolver == true ) {
 			        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
 		        } else {
-			        auto antID = d_trackingSolver->IdentifyTag(newTag,now);
+			        auto antID = d_trackingSolver->IdentifyTag(tagID,now);
 			        QString antIDStr;
 			        if ( antID != 0 ) {
 				        antIDStr = QString::number(int(antID));
@@ -104,6 +89,33 @@ void MainWindow::setCamera(QCamera * camera) {
 	        },
 	        Qt::QueuedConnection);
 
+
+    d_ui->actionSaveDataAsCSV->setEnabled(false);
+
+    loadSettings();
+    on_actionUnloadMyrmidonFile_triggered();
+}
+
+MainWindow::~MainWindow() {
+    delete d_ui;
+}
+
+
+void MainWindow::setCamera(QCamera * camera) {
+	if ( d_camera != nullptr ) {
+		delete d_camera;
+		d_camera = nullptr;
+	}
+
+	d_camera = camera;
+	d_ui->cameraSettings->setCamera(camera);
+
+	if ( d_camera == nullptr ) {
+		d_ui->detectButton->setEnabled(false);
+		return;
+	}
+	d_ui->detectButton->setEnabled(true);
+	d_camera->setViewfinder(d_detectionView);
 
 	d_camera->start();
 }
@@ -124,16 +136,12 @@ void MainWindow::on_actionLoadImage_triggered() {
 }
 
 
-void MainWindow::togglePlayPause() {
+void MainWindow::toggleDetection() {
 	if ( d_camera == nullptr ) {
 		return;
 	}
 
-	if ( d_playing ) {
-		d_camera->stop();
-	} else {
-		d_camera->start();
-	}
+	d_detectionView->setDetectionActive(!d_detectionView->isDetectionActive());
 }
 
 

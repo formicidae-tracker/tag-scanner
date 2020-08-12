@@ -12,7 +12,7 @@
 #include <fort/tags/tag36ARTag.h>
 #include <fort/tags/tag36h10.h>
 
-#include <QVideoFrame>
+#include <QImage>
 
 ApriltagDetector::ApriltagDetector(QObject * parent)
 	: QObject(parent)
@@ -77,16 +77,11 @@ void ApriltagDetector::setClusterMinSize(quint32 minSize) {
 	emit clusterMinSizeChanged(minSize);
 }
 
-Detection::Ptr ApriltagDetector::processVideoFrame(const QVideoFrame & frame) {
+Detection::Ptr ApriltagDetector::processImage(const QImage & frame) {
 	if ( d_family == fort::tags::Family::Undefined ) {
 		return nullptr;
 	}
-	QImage native(frame.bits(),
-	              frame.width(),
-	              frame.height(),
-	              frame.bytesPerLine(),
-	              QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat()));
-	auto gray = native.convertToFormat(QImage::Format_Grayscale8);
+	auto gray = frame.convertToFormat(QImage::Format_Grayscale8);
 
 	image_u8_t img = {
 	                  .width = gray.width(),

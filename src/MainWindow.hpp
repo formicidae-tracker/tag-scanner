@@ -9,7 +9,7 @@ class Detection;
 #include <fort/myrmidon/Experiment.hpp>
 
 class QCamera;
-class ApriltagDetector;
+class DetectionView;
 
 namespace Ui {
 class MainWindow;
@@ -20,9 +20,6 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
-signals:
-	void newTag(quint32 );
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -38,7 +35,7 @@ private slots:
 	void on_actionUnloadMyrmidonFile_triggered();
 	void on_myrmidonButton_clicked();
 
-	void togglePlayPause();
+	void toggleDetection();
 
 private:
 	typedef std::shared_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
@@ -48,14 +45,9 @@ private:
 
     Ui::MainWindow * d_ui;
 
-	QCamera * d_camera;
-	ApriltagDetector * d_detector;
-
-	std::shared_ptr<Detection> d_lastDetection;
-	size_t                     d_lastDetectionCount;
-	bool                       d_playing;
-	bool                       d_needSave;
-
+	QCamera       * d_camera;
+	DetectionView * d_detectionView;
+	bool            d_needSave;
 
 	TrackingSolverPtr d_trackingSolver;
 };
