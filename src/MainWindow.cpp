@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto cameraInfos = QCameraInfo::availableCameras();
     for ( const auto & cInfo : cameraInfos ) {
-	    auto loadCameraAction = new QAction(tr("Load camera %1").arg(cInfo.deviceName()),this);
+	    auto loadCameraAction = new QAction(tr("Use %1").arg(cInfo.description()),this);
 	    connect(loadCameraAction,&QAction::triggered,
 	            [this,cInfo]() {
 		            setCamera(new QCamera(cInfo,this));
