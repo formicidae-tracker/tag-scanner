@@ -117,7 +117,6 @@ void ApriltagDetector::updateDetector() {
 	d_detector->qtp.min_cluster_pixels = d_minCluster;
 
 	if ( d_atFamily != nullptr ) {
-		std::cerr << "Removing family" << std::endl;
 		apriltag_detector_remove_family(d_detector,d_atFamily);
 		d_familyDestructor(d_atFamily);
 		d_atFamily = nullptr;
