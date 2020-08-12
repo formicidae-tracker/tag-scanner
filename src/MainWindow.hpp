@@ -35,7 +35,11 @@ private slots:
 	void on_actionUnloadMyrmidonFile_triggered();
 	void on_myrmidonButton_clicked();
 
+	void onNewTag(quint32 tag);
+
 	void toggleDetection();
+
+
 
 private:
 	typedef std::shared_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;

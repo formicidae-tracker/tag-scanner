@@ -58,35 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
             [this]() { close(); });
 
 	connect(d_detectionView,&DetectionView::newTag,
-	        this,
-	        [this](quint32 tagID) {
-		        QApplication::beep();
-		        auto now = fort::myrmidon::Time::Now();
-		        std::ostringstream nowStr;
-		        nowStr << now.Round(fort::myrmidon::Duration::Second);
-		        auto tagStr = fort::myrmidon::FormatTagID(tagID);
-
-		        auto row = d_ui->tableWidget->rowCount();
-		        d_ui->tableWidget->insertRow(row);
-		        d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(nowStr.str().c_str()));
-		        d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
-
-		        if ( !d_trackingSolver == true ) {
-			        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
-		        } else {
-			        auto antID = d_trackingSolver->IdentifyTag(tagID,now);
-			        QString antIDStr;
-			        if ( antID != 0 ) {
-				        antIDStr = QString::number(int(antID));
-			        }
-
-			        d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(antIDStr));
-		        }
-
-		        d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
-		        d_needSave = true;
-		        d_ui->actionSaveDataAsCSV->setEnabled(true);
-	        },
+	        this,&MainWindow::onNewTag,
 	        Qt::QueuedConnection);
 
 
@@ -265,4 +237,33 @@ void MainWindow::on_myrmidonButton_clicked() {
 	} else {
 		on_actionUnloadMyrmidonFile_triggered();
 	}
+}
+
+void MainWindow::onNewTag(quint32 tagID) {
+	QApplication::beep();
+	auto now = fort::myrmidon::Time::Now();
+	std::ostringstream nowStr;
+	nowStr << now.Round(fort::myrmidon::Duration::Second);
+	auto tagStr = fort::myrmidon::FormatTagID(tagID);
+
+	auto row = d_ui->tableWidget->rowCount();
+	d_ui->tableWidget->insertRow(row);
+	d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(nowStr.str().c_str()));
+	d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
+
+	if ( !d_trackingSolver == true ) {
+		d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
+	} else {
+		auto antID = d_trackingSolver->IdentifyTag(tagID,now);
+		QString antIDStr;
+		if ( antID != 0 ) {
+			antIDStr = QString::number(int(antID));
+		}
+
+		d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(antIDStr));
+	}
+
+	d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
+	d_needSave = true;
+	d_ui->actionSaveDataAsCSV->setEnabled(true);
 }
