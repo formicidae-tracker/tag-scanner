@@ -12,7 +12,7 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/formicidae-tracker/studio.git
-    source-branch: dev/data-less
+    source-commit: 9c6e411c655cc6f24967c90989be57bd308e31e1
     build-packages:
       - g++
       - make
@@ -30,7 +30,6 @@ parts:
       - usr/include/apriltag/
       - usr/include/fort/
       - usr/lib/libfort-*
-      - usr/lib/libapriltag*
       - usr/lib/FortMyrmidon
       - usr/lib/FortHermesCpp
       - usr/lib/FortTags
@@ -38,10 +37,19 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/formicidae-tracker/tag-scanner.git
+    build-packages:
+      - qtmultimedia5-dev
+      - libqt5multimedia5-plugins
     stage-packages:
       - libqt5widgets5
+      - libqt5multimedia5
+      - libqt5multimedia5-plugins
       - libopencv-videoio4.2
       - libprotobuf17
+      - libpulse0
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - libglu1-mesa
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_PREFIX_PATH=/root/stage/usr/
@@ -51,7 +59,10 @@ apps:
   fort-tag-scanner:
     command: usr/bin/fort-tag-scanner
     environment:
-      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP_DESKTOP_RUNTIME/usr/lib/$ARCH/qt5/libs"
+      GST_PLUGIN_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0"
+      GST_PLUGIN_SYSTEM_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer-1.0"
+      GST_PLUGIN_SCANNER: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner"
+      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP_DESKTOP_RUNTIME/usr/lib/$ARCH/qt5/libs:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/"
       QT_PLUGIN_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins:$SNAP_DESKTOP_RUNTIME/usr/lib/$SNAPCRAFT_ARCH_TRIPLET"
 #      QT_QPA_PLATFORMTHEME: "gtk3"
     plugs:
@@ -61,3 +72,4 @@ apps:
       - desktop
       - desktop-legacy
       - wayland
+      - opengl
