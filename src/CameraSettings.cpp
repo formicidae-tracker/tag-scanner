@@ -200,14 +200,11 @@ void CameraSettings::updateOpticalZoom() {
 	                digitalZoomValue());
 }
 
-#include <iostream>
-
 void CameraSettings::updateDigitalZoom() {
 	if ( d_camera == nullptr
 	     || digitalZoomSupported() == false ) {
 		return;
 	}
-	std::cerr << "Zooming to " << opticalZoomValue() << "," << digitalZoomValue() << std::endl;
 	d_focus->zoomTo(opticalZoomValue(),
 	                digitalZoomValue());
 }
