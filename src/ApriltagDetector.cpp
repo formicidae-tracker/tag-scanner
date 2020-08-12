@@ -12,7 +12,7 @@
 #include <fort/tags/tag36ARTag.h>
 #include <fort/tags/tag36h10.h>
 
-#include <opencv2/imgproc.hpp>
+#include <QVideoFrame>
 
 ApriltagDetector::ApriltagDetector(QObject * parent)
 	: QObject(parent)
@@ -77,31 +77,29 @@ void ApriltagDetector::setClusterMinSize(quint32 minSize) {
 	emit clusterMinSizeChanged(minSize);
 }
 
-void ApriltagDetector::processFrame(cv::Mat mat) {
+Detection::Ptr ApriltagDetector::processVideoFrame(const QVideoFrame & frame) {
 	if ( d_family == fort::tags::Family::Undefined ) {
-		emit frameProcessed(mat,nullptr);
-		return;
+		return nullptr;
 	}
-	cv::Mat gray;
-	if ( mat.type() == CV_8UC3 ) {
-		cv::cvtColor(mat,gray,cv::COLOR_BGR2GRAY);
-	} else if ( mat.type() == CV_8UC1 ) {
-		gray = mat;
-	}
+	QImage native(frame.bits(),
+	              frame.width(),
+	              frame.height(),
+	              frame.bytesPerLine(),
+	              QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat()));
+	auto gray = native.convertToFormat(QImage::Format_Grayscale8);
 
 	image_u8_t img = {
-	                  .width = gray.cols,
-	                  .height = gray.rows,
-	                  .stride = gray.cols,
-	                  .buf = gray.data
+	                  .width = gray.width(),
+	                  .height = gray.height(),
+	                  .stride = gray.bytesPerLine(),
+	                  .buf = gray.bits()
 	};
 
 	auto detections = apriltag_detector_detect(d_detector,
 	                                           &img);
 
 	if ( zarray_size(detections) == 0 ) {
-		emit frameProcessed(mat,nullptr);
-		return;
+		return nullptr;
 	}
 	apriltag_detection_t* d;
 	zarray_get(detections,0,&d);
@@ -114,21 +112,8 @@ void ApriltagDetector::processFrame(cv::Mat mat) {
 	                                                             Eigen::Vector2d(d->p[3][0],d->p[3][1]),
 	                                                             },
 		});
-	cv::line(mat,cv::Point(d->p[0][0],d->p[0][1]),cv::Point(d->p[1][0],d->p[1][1]),cv::Vec3b(0xff,0xff,0x00),4);
-	cv::line(mat,cv::Point(d->p[1][0],d->p[1][1]),cv::Point(d->p[2][0],d->p[2][1]),cv::Vec3b(0xff,0xff,0x00),4);
-	cv::line(mat,cv::Point(d->p[2][0],d->p[2][1]),cv::Point(d->p[3][0],d->p[3][1]),cv::Vec3b(0xff,0xff,0x00),4);
-	cv::line(mat,cv::Point(d->p[3][0],d->p[3][1]),cv::Point(d->p[0][0],d->p[0][1]),cv::Vec3b(0xff,0xff,0x00),4);
-
-	cv::putText(mat,"TagID: " + fort::myrmidon::FormatTagID(res->TagID),
-	            cv::Point(10,30),
-	            cv::FONT_HERSHEY_DUPLEX,
-	            1.0,
-	            cv::Vec3b(0x00,0x00,0xff),
-	            2);
-
 	apriltag_detections_destroy(detections);
-
-	emit frameProcessed(mat,res);
+	return res;
 }
 
 

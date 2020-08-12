@@ -1,7 +1,6 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "Camera.hpp"
 #include "ApriltagDetector.hpp"
 
 #include <iostream>
@@ -12,6 +11,8 @@
 #include <QCloseEvent>
 #include <QSettings>
 #include <QMessageBox>
+#include <QCamera>
+#include <QCameraInfo>
 
 #include <opencv2/imgproc.hpp>
 
@@ -27,18 +28,14 @@ MainWindow::MainWindow(QWidget *parent)
 	, d_needSave(false) {
     d_ui->setupUi(this);
 
-    auto cameras = CVCamera::Enumerate();
-    for ( const auto & [i,name] : cameras ) {
-	    auto loadCameraAction = new QAction(tr("Load camera %1").arg(name.c_str()),this);
+    auto cameraInfos = QCameraInfo::availableCameras();
+    for ( const auto & cInfo : cameraInfos ) {
+	    auto loadCameraAction = new QAction(tr("Load camera %1").arg(cInfo.deviceName()),this);
 	    connect(loadCameraAction,&QAction::triggered,
-	            [this,i]() {
-		            try {
-			            setCamera(new CVCamera(i,this));
-		            } catch ( const std::exception & e) {
-		            }
+	            [this,cInfo]() {
+		            setCamera(new QCamera(cInfo,this));
 	            });
 	    d_ui->menuDevices->addAction(loadCameraAction);
-
     }
 
     d_ui->apriltagSettings->setup(d_detector);
@@ -60,9 +57,9 @@ MainWindow::~MainWindow() {
 }
 
 
-void MainWindow::setCamera(Camera * camera) {
-	if ( !d_camera ) {
-		delete d_camera;
+void MainWindow::setCamera(QCamera * camera) {
+	if ( d_camera != nullptr ) {
+		d_camera->deleteLater();
 		d_camera = nullptr;
 	}
 
@@ -75,36 +72,6 @@ void MainWindow::setCamera(Camera * camera) {
 		return;
 	}
 
-	connect(camera,&Camera::newFrame,
-	        d_detector,&ApriltagDetector::processFrame,
-	        Qt::QueuedConnection);
-	connect(d_detector,&ApriltagDetector::frameProcessed,
-	        this,
-	        [this] ( cv::Mat frame, Detection::Ptr detection) {
-		        static size_t i = 0;
-		        cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
-		        d_ui->liveView->setPixmap(QPixmap::fromImage(QImage(frame.data,frame.cols,frame.rows,frame.step,QImage::Format_RGB888)));
-		        if (!detection) {
-			        d_lastDetection.reset();
-			        d_lastDetectionCount = 0;
-		        } else if ( !d_lastDetection ) {
-			        d_lastDetection = detection;
-			        d_lastDetectionCount = 1;
-		        } else {
-			        if ( detection->TagID == d_lastDetection->TagID ) {
-				        if (++d_lastDetectionCount >= d_ui->apriltagSettings->numberDetections() ) {
-					        QApplication::beep();
-					        d_camera->stop();
-					        d_lastDetectionCount = 1;
-					        emit newTag(detection->TagID);
-				        }
-			        } else {
-				        d_lastDetection = detection;
-				        d_lastDetectionCount = 1;
-			        }
-		        }
-	        },
-	        Qt::QueuedConnection);
 
 	connect(this,&MainWindow::newTag,
 	        this,
@@ -137,11 +104,6 @@ void MainWindow::setCamera(Camera * camera) {
 	        },
 	        Qt::QueuedConnection);
 
-	connect(d_camera,&Camera::playing,
-	        [this](bool playing) {
-		        d_playing = playing;
-	        });
-
 
 	d_camera->start();
 }
@@ -155,7 +117,7 @@ void MainWindow::on_actionLoadImage_triggered() {
 		return;
 	}
 	try {
-		setCamera(new StubCamera(filename.toUtf8().constData(),this));
+		setCamera(nullptr);
 	} catch ( const std::exception & e)  {
 		d_ui->statusbar->showMessage(tr("Could not open %1: %2").arg(filename).arg(e.what()),2000);
 	}

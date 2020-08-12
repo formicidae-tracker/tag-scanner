@@ -2,13 +2,9 @@
 
 #include <QObject>
 
-#include <opencv2/core.hpp>
-
 #include <fort/myrmidon/Types.hpp>
 
 #include <apriltag/apriltag.h>
-
-extern "C" {
 #include <apriltag/tag16h5.h>
 #include <apriltag/tag25h9.h>
 #include <apriltag/tag36h11.h>
@@ -19,8 +15,6 @@ extern "C" {
 #include <apriltag/tagStandard52h13.h>
 #include <fort/tags/tag36ARTag.h>
 #include <fort/tags/tag36h10.h>
-}
-
 #include <fort/tags/fort-tags.h>
 
 struct Detection {
@@ -29,8 +23,9 @@ struct Detection {
 	fort::myrmidon::Vector2dList Corners;
 };
 
-Q_DECLARE_METATYPE(Detection::Ptr)
 Q_DECLARE_METATYPE(fort::tags::Family)
+
+class QVideoFrame;
 
 class ApriltagDetector : public QObject {
 	Q_OBJECT
@@ -54,18 +49,17 @@ public:
 	quint8 threshold() const;
 	quint32 clusterMinSize() const;
 
+	Detection::Ptr processVideoFrame(const QVideoFrame & frame);
 
 public slots:
 	void setFamily(fort::tags::Family family);
 	void setThreshold(quint8 threshold);
 	void setClusterMinSize(quint32 minSize);
 
-	void processFrame(cv::Mat mat);
 private slots:
 	void updateDetector();
 
 signals:
-	void frameProcessed(cv::Mat mat,Detection::Ptr);
 
 	void thresholdChanged(quint8 );
 	void clusterMinSizeChanged(quint8 );

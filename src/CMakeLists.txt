@@ -11,13 +11,13 @@ set(SRC_FILES main.cpp
               CameraSettings.cpp
               ApriltagSettings.cpp
               ApriltagDetector.cpp
-              Camera.cpp)
+              )
 
 set(HDR_FILES MainWindow.hpp
               CameraSettings.hpp
               ApriltagSettings.hpp
               ApriltagDetector.hpp
-              Camera.hpp)
+              )
 
 set(UI_FILES MainWindow.ui
              CameraSettings.ui
@@ -33,7 +33,8 @@ add_executable(fort-tag-scanner ${SRC_FILES}
                                 )
 
 target_link_libraries(fort-tag-scanner Qt5::Widgets
-                                       ${OpenCV_LIBS}
+                                       Qt5::Multimedia
+                                       ${FORT_TAGS_LIBRARIES}
                                        ${FORT_MYRMIDON_LIBRARIES}
                                        )
 

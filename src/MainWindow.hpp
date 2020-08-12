@@ -8,7 +8,7 @@ class Detection;
 
 #include <fort/myrmidon/Experiment.hpp>
 
-class Camera;
+class QCamera;
 class ApriltagDetector;
 
 namespace Ui {
@@ -29,7 +29,7 @@ protected:
 
 
 private slots:
-	void setCamera(Camera * camera);
+	void setCamera(QCamera * camera);
 
 	void on_actionLoadImage_triggered();
 	void on_actionSaveDataAsCSV_triggered();
@@ -48,7 +48,7 @@ private:
 
     Ui::MainWindow * d_ui;
 
-	Camera * d_camera;
+	QCamera * d_camera;
 	ApriltagDetector * d_detector;
 
 	std::shared_ptr<Detection> d_lastDetection;
