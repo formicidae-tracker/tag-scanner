@@ -6,6 +6,9 @@
 class QGraphicsScene;
 class QGraphicsView;
 class QGraphicsPixmapItem;
+class QGraphicsSimpleTextItem;
+class QGraphicsRectItem;
+class QGraphicsPathItem;
 class ApriltagDetector;
 class ApriltagSettings;
 
@@ -48,12 +51,18 @@ signals:
 	void detectionActiveChanged(bool active);
 
 private:
+	void setText(const QString & text);
 
 	QGraphicsScene   * d_scene;
 	QGraphicsView    * d_view;
 	ApriltagDetector * d_detector;
 	ApriltagSettings * d_settings;
-	QGraphicsPixmapItem * d_image;
+
+	QGraphicsPixmapItem     * d_image;
+	QGraphicsSimpleTextItem * d_displayText;
+	QGraphicsRectItem       * d_textBackground;
+	QGraphicsPathItem       * d_tagOutline;
+
 	bool               d_detectionActive;
 	DetectionPtr       d_lastDetection;
 	size_t             d_nbDetections;
