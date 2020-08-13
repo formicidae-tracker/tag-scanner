@@ -1,5 +1,5 @@
 name: fort-tag-scanner
-version: "0.2.0"
+version: "0.2.1"
 summary:  A Tag Scanner for the FORmicidae Tracker
 description: |
   fort-tag-scanner is a small graphical application that uses a webcam
@@ -37,7 +37,7 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/formicidae-tracker/tag-scanner.git
-    source-tag: v0.2.0
+    source-tag: v0.2.1
     build-packages:
       - qtmultimedia5-dev
       - libqt5multimedia5-plugins
