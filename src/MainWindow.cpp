@@ -58,7 +58,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
 
+    auto header = d_ui->tableView->horizontalHeader();
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header->setStretchLastSection(true);
+
     d_ui->tableView->setModel(d_detectionProcess->model());
+
 
     connect(d_detectionProcess->model(),&QStandardItemModel::itemChanged,
             this,&MainWindow::onDataModification);
