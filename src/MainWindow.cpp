@@ -74,6 +74,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     loadSettings();
     on_actionUnloadMyrmidonFile_triggered();
+
+
+    connect(this,&MainWindow::needSaveChanged,
+            this,[this](bool needSave) {
+	                 setWindowTitle(needSave ? tr("*FORT Tag Scanner") : tr("FORT Tag Scanner"));
+                 });
+    setWindowTitle(tr("FORT Tag Scanner"));
 }
 
 MainWindow::~MainWindow() {
@@ -165,8 +172,7 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 		     << std::endl;
 	}
 
-	d_needSave = false;
-
+	setNeedSave(false);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -264,5 +270,14 @@ void MainWindow::on_myrmidonButton_clicked() {
 }
 
 void MainWindow::onDataModification() {
-	d_needSave = true;
+	setNeedSave(true);
+}
+
+
+void MainWindow::setNeedSave(bool needSave) {
+	if ( d_needSave == needSave) {
+		return;
+	}
+	d_needSave = needSave;
+	emit needSaveChanged(needSave);
 }

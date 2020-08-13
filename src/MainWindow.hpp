@@ -25,6 +25,9 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 
+signals:
+	void needSaveChanged(bool needSave);
+
 private slots:
 	void setCamera(QCamera * camera);
 
@@ -43,6 +46,8 @@ private:
 	bool maybeSave();
 	void saveSettings();
 	void loadSettings();
+
+	void setNeedSave(bool needSave);
 
     Ui::MainWindow * d_ui;
 
