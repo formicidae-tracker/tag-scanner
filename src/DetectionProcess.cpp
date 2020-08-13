@@ -1,5 +1,5 @@
 
-#include "DetectionView.hpp"
+#include "DetectionProcess.hpp"
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -12,7 +12,7 @@
 #include "ApriltagDetector.hpp"
 #include "ApriltagSettings.hpp"
 
-DetectionView::DetectionView(QObject * parent)
+DetectionProcess::DetectionProcess(QObject * parent)
 	: QAbstractVideoSurface(parent)
 	, d_scene(new QGraphicsScene(this))
 	, d_view(nullptr)
@@ -47,14 +47,14 @@ DetectionView::DetectionView(QObject * parent)
 	d_scene->addItem(d_displayText);
 }
 
-DetectionView::~DetectionView() {
+DetectionProcess::~DetectionProcess() {
 }
 
-bool DetectionView::isDetectionActive() const {
+bool DetectionProcess::isDetectionActive() const {
 	return d_detectionActive;
 }
 
-void DetectionView::setApriltagSettings(ApriltagSettings * settings) {
+void DetectionProcess::setApriltagSettings(ApriltagSettings * settings) {
 	settings->setup(d_detector);
 	d_settings = settings;
 }
@@ -73,7 +73,7 @@ QPointF ToQt(const Eigen::Vector2d & p) {
 }
 
 
-bool DetectionView::present(const QVideoFrame & frameIn)  {
+bool DetectionProcess::present(const QVideoFrame & frameIn)  {
 	if ( d_detectionActive == false ) {
 		//just drop the frame
 		return true;
@@ -125,7 +125,7 @@ bool DetectionView::present(const QVideoFrame & frameIn)  {
 	return true;
 }
 
-void DetectionView::setView(QGraphicsView * view) {
+void DetectionProcess::setView(QGraphicsView * view) {
 	d_view = view;
 	if ( d_view == nullptr ) {
 		return;
@@ -134,16 +134,16 @@ void DetectionView::setView(QGraphicsView * view) {
 }
 
 
-QList<QVideoFrame::PixelFormat> DetectionView::supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const {
+QList<QVideoFrame::PixelFormat> DetectionProcess::supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const {
 	return {QVideoFrame::Format_RGB24,QVideoFrame::Format_BGR24};
 }
 
 
-ApriltagDetector * DetectionView::detector() const {
+ApriltagDetector * DetectionProcess::detector() const {
 	return d_detector;
 }
 
-bool DetectionView::start(const QVideoSurfaceFormat & format) {
+bool DetectionProcess::start(const QVideoSurfaceFormat & format) {
 	if ( d_view == nullptr ) {
 		return false;
 	}
@@ -159,12 +159,12 @@ bool DetectionView::start(const QVideoSurfaceFormat & format) {
 	return QAbstractVideoSurface::start(format);
 }
 
-void DetectionView::stop() {
+void DetectionProcess::stop() {
 	QAbstractVideoSurface::stop();
 	setDetectionActive(false);
 }
 
-void DetectionView::setDetectionActive(bool value) {
+void DetectionProcess::setDetectionActive(bool value) {
 	if ( d_detectionActive == value ) {
 		return;
 	}
@@ -176,7 +176,7 @@ void DetectionView::setDetectionActive(bool value) {
 }
 
 
-void DetectionView::setText(const QString & text) {
+void DetectionProcess::setText(const QString & text) {
 	if ( text.isEmpty() ) {
 		d_displayText->setVisible(false);
 	}

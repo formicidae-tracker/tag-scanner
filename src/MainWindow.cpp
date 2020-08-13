@@ -1,7 +1,7 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "DetectionView.hpp"
+#include "DetectionProcess.hpp"
 
 #include <iostream>
 
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, d_ui(new Ui::MainWindow)
 	, d_camera(nullptr)
-	, d_detectionView(new DetectionView(this))
+	, d_detectionProcess(new DetectionProcess(this))
 	, d_needSave(false)
 	, d_cameraLoaded(false) {
     d_ui->setupUi(this);
@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
 	    d_ui->menuDevices->addAction(loadCameraAction);
     }
 
-    d_detectionView->setApriltagSettings(d_ui->apriltagSettings);
-    d_detectionView->setView(d_ui->liveView);
+    d_detectionProcess->setApriltagSettings(d_ui->apriltagSettings);
+    d_detectionProcess->setView(d_ui->liveView);
 
 
     auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
             this,&MainWindow::toggleDetection);
     connect(d_ui->detectButton,&QPushButton::clicked,
             this,&MainWindow::toggleDetection);
-    connect(d_detectionView,&DetectionView::detectionActiveChanged,
+    connect(d_detectionProcess,&DetectionProcess::detectionActiveChanged,
             this,[this](bool active) {
 	                 d_ui->detectButton->setText(active ? tr("Pause Detection") : tr("Detect"));
                  });
@@ -58,12 +58,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
 
-	connect(d_detectionView,&DetectionView::newTag,
+	connect(d_detectionProcess,&DetectionProcess::newTag,
 	        this,&MainWindow::onNewTag,
 	        Qt::QueuedConnection);
 
 
-    d_ui->actionSaveDataAsCSV->setEnabled(false);
 
     loadSettings();
     on_actionUnloadMyrmidonFile_triggered();
@@ -98,7 +97,7 @@ void MainWindow::setCamera(QCamera * camera) {
 	            });
 
 	d_ui->detectButton->setEnabled(true);
-	d_camera->setViewfinder(d_detectionView);
+	d_camera->setViewfinder(d_detectionProcess);
 	d_camera->load();
 }
 
@@ -123,17 +122,21 @@ void MainWindow::toggleDetection() {
 		return;
 	}
 
-	d_detectionView->setDetectionActive(!d_detectionView->isDetectionActive());
+	d_detectionProcess->setDetectionActive(!d_detectionProcess->isDetectionActive());
 }
 
 
 void MainWindow::on_actionSaveDataAsCSV_triggered() {
-	auto filename = QFileDialog::getSaveFileName(this,tr("Save data"),
+	auto filename = QFileDialog::getSaveFileName(this,tr("Save scan data as CSV"),
 	                                             "",
 	                                             tr("CSV (*.csv)"));
 
 	if ( filename.isEmpty() ) {
 		return;
+	}
+	QFileInfo fileInfo(filename);
+	if ( fileInfo.suffix().isEmpty() ) {
+		filename += ".csv";
 	}
 
 	std::ofstream file(filename.toUtf8().constData());
@@ -151,7 +154,6 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 	}
 
 	d_needSave = false;
-	d_ui->actionSaveDataAsCSV->setEnabled(false);
 
 }
 
@@ -275,5 +277,4 @@ void MainWindow::onNewTag(quint32 tagID) {
 
 	d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
 	d_needSave = true;
-	d_ui->actionSaveDataAsCSV->setEnabled(true);
 }

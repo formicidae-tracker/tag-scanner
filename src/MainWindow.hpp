@@ -9,7 +9,7 @@ class Detection;
 #include <fort/myrmidon/Experiment.hpp>
 
 class QCamera;
-class DetectionView;
+class DetectionProcess;
 
 namespace Ui {
 class MainWindow;
@@ -49,10 +49,10 @@ private:
 
     Ui::MainWindow * d_ui;
 
-	QCamera       * d_camera;
-	DetectionView * d_detectionView;
-	bool            d_needSave;
-	bool            d_cameraLoaded;
+	QCamera          * d_camera;
+	DetectionProcess * d_detectionProcess;
+	bool               d_needSave;
+	bool               d_cameraLoaded;
 
 	TrackingSolverPtr d_trackingSolver;
 };

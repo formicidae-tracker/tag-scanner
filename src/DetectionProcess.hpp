@@ -15,15 +15,15 @@ class ApriltagSettings;
 class Detection;
 typedef std::shared_ptr<Detection> DetectionPtr;
 
-class DetectionView : public QAbstractVideoSurface {
+class DetectionProcess : public QAbstractVideoSurface {
 	Q_OBJECT
 	Q_PROPERTY(bool detectionActive
 	           READ isDetectionActive
 	           NOTIFY detectionActiveChanged);
 
 public:
-	explicit DetectionView(QObject * parent = nullptr);
-	virtual ~DetectionView();
+	explicit DetectionProcess(QObject * parent = nullptr);
+	virtual ~DetectionProcess();
 
 	void setApriltagSettings(ApriltagSettings * settings);
 	void setView(QGraphicsView * view);
