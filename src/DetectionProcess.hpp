@@ -31,6 +31,8 @@ public:
 	explicit DetectionProcess(QObject * parent = nullptr);
 	virtual ~DetectionProcess();
 
+	static std::string FormatAntID(quint32 antID);
+
 	void setApriltagSettings(ApriltagSettings * settings);
 	void setView(DetectionView * view);
 

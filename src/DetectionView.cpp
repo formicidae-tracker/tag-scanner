@@ -1,4 +1,5 @@
 #include "DetectionView.hpp"
+#include "DetectionProcess.hpp"
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSimpleTextItem>
@@ -57,7 +58,16 @@ void DetectionView::displayNoDetection() {
 
 void DetectionView::displayDetection(const DetectionDisplay & detection) {
 	auto tagStr = fort::myrmidon::FormatTagID(detection.TagID);
-	setText(tr("Detected: %1").arg(tagStr.c_str()));
+	if ( detection.AntID == 0 ) {
+		setText(tr("TagID: %1 Count: %2")
+		        .arg(tagStr.c_str())
+		        .arg(detection.Count));
+	} else {
+		setText(tr("TagID: %1 AntID: %2 Count: %3")
+		        .arg(tagStr.c_str())
+		        .arg(DetectionProcess::FormatAntID(detection.AntID).c_str())
+		        .arg(detection.Count));
+	}
 
 	QPainterPath path;
 	path.moveTo(detection.Corners.back());

@@ -163,7 +163,7 @@ void DetectionProcess::setDetectionActive(bool value) {
 	emit detectionActiveChanged(d_detectionActive);
 }
 
-std::string FormatAntID(fort::myrmidon::AntID antID) {
+std::string DetectionProcess::FormatAntID(quint32 antID) {
 	std::ostringstream oss;
 	oss << std::setw(3) << std::setfill('0') << antID;
 	return oss.str();
