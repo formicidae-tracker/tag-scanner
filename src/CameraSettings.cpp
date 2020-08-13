@@ -101,7 +101,6 @@ void CameraSettings::updateFPSBox() {
 
 
 void CameraSettings::updateViewfinderSettings() {
-
 	if ( d_camera == nullptr ) {
 		return;
 	}
@@ -114,9 +113,11 @@ void CameraSettings::updateViewfinderSettings() {
 	wanted.setResolution(d_ui->resolutionBox->currentData().toSize());
 	wanted.setMaximumFrameRate(d_ui->fpsBox->currentData().toDouble());
 	auto settings = d_camera->supportedViewfinderSettings(wanted);
+
 	if ( settings.isEmpty() ) {
 		return;
 	}
+
 	d_camera->setViewfinderSettings(settings[0]);
 	writeSettings();
 }
@@ -137,6 +138,7 @@ bool CameraSettings::loadSettings() {
 	if ( fpsIndex < 0 ) {
 		return false;
 	}
+	d_ui->fpsBox->setCurrentIndex(-1);
 	d_ui->fpsBox->setCurrentIndex(fpsIndex);
 	return true;
 }
