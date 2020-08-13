@@ -16,7 +16,6 @@ DetectionView::DetectionView(QWidget * parent)
 
 	d_textBackground = new QGraphicsRectItem();
 	d_textBackground->setVisible(false);
-	d_textBackground->setBrush(QColor(255,255,255,127));
 	d_textBackground->setPen(Qt::NoPen);
 
 	d_displayText = new QGraphicsSimpleTextItem();
@@ -28,16 +27,13 @@ DetectionView::DetectionView(QWidget * parent)
 
 	d_tagOutline = new QGraphicsPathItem();
 	d_tagOutline->setVisible(false);
-	QPen outlinePen(QColor(0,255,255));
-	outlinePen.setWidth(5);
-	d_tagOutline->setPen(outlinePen);
-	d_tagOutline->setBrush(QColor(0,255,255,60));
 
 	d_scene->addItem(d_image);
 	d_scene->addItem(d_tagOutline);
 	d_scene->addItem(d_textBackground);
 	d_scene->addItem(d_displayText);
 
+	setColor(0,0);
 
 }
 
@@ -53,10 +49,12 @@ void DetectionView::displayImage(const QImage & image) {
 
 void DetectionView::displayNoDetection() {
 	setText("No Tag Detected");
+	setColor(0,0);
 	d_tagOutline->setVisible(false);
 }
 
 void DetectionView::displayDetection(const DetectionDisplay & detection) {
+	setColor(detection.AntID,detection.Count);
 	auto tagStr = fort::myrmidon::FormatTagID(detection.TagID);
 	if ( detection.AntID == 0 ) {
 		setText(tr("TagID: %1 Count: %2")
@@ -87,6 +85,7 @@ void DetectionView::prepare(const QSize & size) {
 	d_textBackground->setVisible(true);
 	QRectF displayRect(0,0,size.width(),80);
 	d_textBackground->setRect(displayRect);
+	setColor(0,0);
 }
 
 void DetectionView::setText(const QString & text) {
@@ -99,5 +98,33 @@ void DetectionView::setText(const QString & text) {
 		- QPointF(textRect.width(),textRect.height()) * 0.5;
 	d_displayText->setPos(pos);
 	d_displayText->setVisible(true);
+
+}
+
+
+void DetectionView::setColor(quint32 antID,quint32 count) {
+	QPen outlinePen;
+	outlinePen.setWidth(5);
+
+	if ( count > 1 ) {
+		outlinePen.setColor(QColor(255,0,0));
+		d_tagOutline->setPen(outlinePen);
+		d_tagOutline->setBrush(QColor(255,0,0,60));
+		d_textBackground->setBrush(QColor(255,0,0,127));
+		return;
+	}
+	d_textBackground->setBrush(QColor(255,255,255,127));
+
+	if ( antID != 0 ) {
+		outlinePen.setColor(QColor(0,255,0));
+		d_tagOutline->setPen(outlinePen);
+		d_tagOutline->setBrush(QColor(0,255,0,60));
+	} else {
+		outlinePen.setColor(QColor(0,255,255));
+		d_tagOutline->setPen(outlinePen);
+		d_tagOutline->setBrush(QColor(0,255,255,60));
+	}
+
+
 
 }

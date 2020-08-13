@@ -25,6 +25,9 @@ public:
 private:
 	void setText(const QString & text);
 
+	void setColor(quint32 antID,
+	              quint32 count);
+
 	QGraphicsScene * d_scene;
 
 	QGraphicsPixmapItem     * d_image;
