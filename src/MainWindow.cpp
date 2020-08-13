@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QCamera>
 #include <QCameraInfo>
+#include <QStandardItemModel>
 
 #include <opencv2/imgproc.hpp>
 
@@ -42,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
     d_detectionProcess->setApriltagSettings(d_ui->apriltagSettings);
     d_detectionProcess->setView(d_ui->liveView);
 
-
     auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
     connect(togglePlayPauseShortcut,&QShortcut::activated,
             this,&MainWindow::toggleDetection);
@@ -58,10 +58,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(d_ui->actionQuit,&QAction::triggered,
             [this]() { close(); });
 
-	connect(d_detectionProcess,&DetectionProcess::newTag,
-	        this,&MainWindow::onNewTag,
-	        Qt::QueuedConnection);
+    d_ui->tableView->setModel(d_detectionProcess->model());
 
+    connect(d_detectionProcess->model(),&QStandardItemModel::itemChanged,
+            this,&MainWindow::onDataModification);
+
+    connect(d_detectionProcess->model(),&QStandardItemModel::rowsInserted,
+            this,&MainWindow::onDataModification);
 
 
     loadSettings();
@@ -78,6 +81,7 @@ void MainWindow::setCamera(QCamera * camera) {
 		delete d_camera;
 		d_camera = nullptr;
 	}
+
 	d_cameraLoaded = false;
 	d_camera = camera;
 
@@ -139,18 +143,21 @@ void MainWindow::on_actionSaveDataAsCSV_triggered() {
 		filename += ".csv";
 	}
 
+	const auto model = d_detectionProcess->model();
+
 	std::ofstream file(filename.toUtf8().constData());
-	file << "#Time,TagID,AntID,Comment" << std::endl;
-	for ( size_t i = 0; i < d_ui->tableWidget->rowCount(); ++i) {
+	file << "#ScanTime,TagID,AntID,Comment" << std::endl;
+	for ( size_t i = 0; i < model->rowCount(); ++i) {
 		file << "\"" \
-		     << d_ui->tableWidget->item(i,0)->text().toUtf8().constData()
+		     << model->item(i,0)->text().toUtf8().constData()
 		     << "\",\""
-		     << d_ui->tableWidget->item(i,1)->text().toUtf8().constData()
+		     << model->item(i,1)->text().toUtf8().constData()
 		     << "\",\""
-		     << d_ui->tableWidget->item(i,2)->text().toUtf8().constData()
+		     << model->item(i,2)->text().toUtf8().constData()
 		     << "\",\""
-		     << d_ui->tableWidget->item(i,3)->text().toUtf8().constData()
-		     << "\"" << std::endl;
+		     << model->item(i,3)->text().toUtf8().constData()
+		     << "\""
+		     << std::endl;
 	}
 
 	d_needSave = false;
@@ -209,7 +216,7 @@ void MainWindow::saveSettings() {
 
 
 void MainWindow::on_actionLoadMyrmidonFile_triggered() {
-	if ( !d_trackingSolver == false ) {
+	if ( d_detectionProcess->hasTrackingSolver() == true ) {
 		on_actionUnloadMyrmidonFile_triggered();
 	}
 
@@ -224,7 +231,9 @@ void MainWindow::on_actionLoadMyrmidonFile_triggered() {
 	using namespace fort::myrmidon;
 	try {
 		auto experiment = std::make_shared<CExperiment>(Experiment::OpenDataLess(filename.toUtf8().constData()));
-		d_trackingSolver = std::make_shared<TrackingSolver>(experiment->CompileTrackingSolver());
+		auto trackingSolver = std::make_shared<TrackingSolver>(experiment->CompileTrackingSolver());
+		d_detectionProcess->setTrackingSolver(trackingSolver);
+
 		d_ui->myrmidonFileLabel->setText(tr("File loaded: %1").arg(experiment->AbsoluteFilePath().c_str()));
 		d_ui->actionUnloadMyrmidonFile->setEnabled(true);
 		d_ui->myrmidonButton->setText(tr("Unload Myrmidon File"));
@@ -232,49 +241,23 @@ void MainWindow::on_actionLoadMyrmidonFile_triggered() {
 		QMessageBox::warning(this,tr("Could not open file"),tr("Could not open file %1: %2").arg(filename).arg(e.what()));
 		return;
 	}
-
 }
 
 void MainWindow::on_actionUnloadMyrmidonFile_triggered() {
-	d_trackingSolver.reset();
-		d_ui->myrmidonFileLabel->setText(tr("File loaded: None"));
-		d_ui->actionUnloadMyrmidonFile->setEnabled(false);
-		d_ui->myrmidonButton->setText(tr("Load Myrmidon File"));
-
+	d_detectionProcess->setTrackingSolver(nullptr);
+	d_ui->myrmidonFileLabel->setText(tr("File loaded: None"));
+	d_ui->actionUnloadMyrmidonFile->setEnabled(false);
+	d_ui->myrmidonButton->setText(tr("Load Myrmidon File"));
 }
 
 void MainWindow::on_myrmidonButton_clicked() {
-	if ( !d_trackingSolver == true ) {
+	if ( d_detectionProcess->hasTrackingSolver() == false ) {
 		on_actionLoadMyrmidonFile_triggered();
 	} else {
 		on_actionUnloadMyrmidonFile_triggered();
 	}
 }
 
-void MainWindow::onNewTag(quint32 tagID) {
-	QApplication::beep();
-	auto now = fort::myrmidon::Time::Now();
-	std::ostringstream nowStr;
-	nowStr << now.Round(fort::myrmidon::Duration::Second);
-	auto tagStr = fort::myrmidon::FormatTagID(tagID);
-
-	auto row = d_ui->tableWidget->rowCount();
-	d_ui->tableWidget->insertRow(row);
-	d_ui->tableWidget->setItem(row,0,new QTableWidgetItem(nowStr.str().c_str()));
-	d_ui->tableWidget->setItem(row,1,new QTableWidgetItem(tagStr.c_str()));
-
-	if ( !d_trackingSolver == true ) {
-		d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(""));
-	} else {
-		auto antID = d_trackingSolver->IdentifyTag(tagID,now);
-		QString antIDStr;
-		if ( antID != 0 ) {
-			antIDStr = QString::number(int(antID));
-		}
-
-		d_ui->tableWidget->setItem(row,2,new QTableWidgetItem(antIDStr));
-	}
-
-	d_ui->tableWidget->setItem(row,3,new QTableWidgetItem(""));
+void MainWindow::onDataModification() {
 	d_needSave = true;
 }

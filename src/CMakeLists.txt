@@ -12,6 +12,7 @@ set(SRC_FILES main.cpp
               ApriltagSettings.cpp
               ApriltagDetector.cpp
               DetectionProcess.cpp
+              DetectionView.cpp
               )
 
 set(HDR_FILES MainWindow.hpp
@@ -19,6 +20,7 @@ set(HDR_FILES MainWindow.hpp
               ApriltagSettings.hpp
               ApriltagDetector.hpp
               DetectionProcess.hpp
+              DetectionView.hpp
               )
 
 set(UI_FILES MainWindow.ui

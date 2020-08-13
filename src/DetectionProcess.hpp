@@ -3,17 +3,20 @@
 
 #include <memory>
 
-class QGraphicsScene;
-class QGraphicsView;
-class QGraphicsPixmapItem;
-class QGraphicsSimpleTextItem;
-class QGraphicsRectItem;
-class QGraphicsPathItem;
+namespace fort {
+namespace myrmidon {
+class TrackingSolver;
+}
+}
+
+class DetectionView;
 class ApriltagDetector;
 class ApriltagSettings;
+class QStandardItemModel;
 
 class Detection;
 typedef std::shared_ptr<Detection> DetectionPtr;
+
 
 class DetectionProcess : public QAbstractVideoSurface {
 	Q_OBJECT
@@ -22,16 +25,18 @@ class DetectionProcess : public QAbstractVideoSurface {
 	           NOTIFY detectionActiveChanged);
 
 public:
+	typedef std::shared_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
+
+
 	explicit DetectionProcess(QObject * parent = nullptr);
 	virtual ~DetectionProcess();
 
 	void setApriltagSettings(ApriltagSettings * settings);
-	void setView(QGraphicsView * view);
+	void setView(DetectionView * view);
 
 	bool present(const QVideoFrame & frame) override;
 
 	QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const override;
-
 
 	ApriltagDetector * detector() const;
 
@@ -41,27 +46,34 @@ public:
 
 	void stop() override;
 
+	QStandardItemModel * model() const;
+
+	bool hasTrackingSolver() const;
+
 public slots:
+	void setTrackingSolver(const TrackingSolverPtr & solver);
+
 	void setDetectionActive(bool value);
 
+	void clearData();
 
 signals:
-	void newTag(quint32 tagID);
 
 	void detectionActiveChanged(bool active);
 
 private:
-	void setText(const QString & text);
+	quint32 identifyAnt(quint32 tagID);
+	quint32 countTag(quint32 tagID);
 
-	QGraphicsScene   * d_scene;
-	QGraphicsView    * d_view;
+	void saveTag(quint32 tagID);
+
 	ApriltagDetector * d_detector;
 	ApriltagSettings * d_settings;
+	DetectionView    * d_view;
 
-	QGraphicsPixmapItem     * d_image;
-	QGraphicsSimpleTextItem * d_displayText;
-	QGraphicsRectItem       * d_textBackground;
-	QGraphicsPathItem       * d_tagOutline;
+	QStandardItemModel * d_model;
+
+	TrackingSolverPtr  d_solver;
 
 	bool               d_detectionActive;
 	DetectionPtr       d_lastDetection;

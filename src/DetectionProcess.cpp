@@ -1,53 +1,46 @@
 
 #include "DetectionProcess.hpp"
 
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QVideoSurfaceFormat>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsSimpleTextItem>
-#include <QGraphicsRectItem>
-#include <QGraphicsPathItem>
+#include "DetectionView.hpp"
 
 #include "ApriltagDetector.hpp"
 #include "ApriltagSettings.hpp"
 
+#include <QVideoSurfaceFormat>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QApplication>
+
+#include <fort/myrmidon/Ant.hpp>
+#include <fort/myrmidon/Experiment.hpp>
+
 DetectionProcess::DetectionProcess(QObject * parent)
 	: QAbstractVideoSurface(parent)
-	, d_scene(new QGraphicsScene(this))
 	, d_view(nullptr)
 	, d_detectionActive(false)
 	, d_detector( new ApriltagDetector(this) )
-	, d_settings(nullptr) {
-
-	d_image = new QGraphicsPixmapItem();
-
-	d_textBackground = new QGraphicsRectItem();
-	d_textBackground->setVisible(false);
-	d_textBackground->setBrush(QColor(255,255,255,127));
-	d_textBackground->setPen(Qt::NoPen);
-
-	d_displayText = new QGraphicsSimpleTextItem();
-	d_displayText->setVisible(false);
-
-	auto font = d_displayText->font();
-	font.setPixelSize(60);
-	d_displayText->setFont(font);
-
-	d_tagOutline = new QGraphicsPathItem();
-	d_tagOutline->setVisible(false);
-	QPen outlinePen(QColor(0,255,255));
-	outlinePen.setWidth(5);
-	d_tagOutline->setPen(outlinePen);
-	d_tagOutline->setBrush(QColor(0,255,255,60));
-
-	d_scene->addItem(d_image);
-	d_scene->addItem(d_tagOutline);
-	d_scene->addItem(d_textBackground);
-	d_scene->addItem(d_displayText);
+	, d_settings(nullptr)
+	, d_model(new QStandardItemModel(this) ) {
+	clearData();
 }
 
+
+void DetectionProcess::clearData() {
+	d_model->clear();
+
+	d_model->setHorizontalHeaderLabels({tr("Scan Time"),
+	                                    tr("TagID"),
+	                                    tr("AntID"),
+	                                    tr("Comment")});
+}
+
+
+
 DetectionProcess::~DetectionProcess() {
+}
+
+QStandardItemModel * DetectionProcess::model() const {
+	return d_model;
 }
 
 bool DetectionProcess::isDetectionActive() const {
@@ -89,48 +82,47 @@ bool DetectionProcess::present(const QVideoFrame & frameIn)  {
 	             frame.bytesPerLine(),
 	             imageFormat);
 
-	auto pixmap = QPixmap::fromImage(image);
-	d_image->setPixmap(pixmap);
-	d_view->fitInView(d_image->boundingRect(),Qt::KeepAspectRatio);
-
+	if ( d_view == nullptr ) {
+		return true;
+	}
+	d_view->displayImage(image);
 
 	auto detection = d_detector->processImage(image);
 	if ( !detection ) {
-		setText(tr("No Tag Detected"));
-		d_tagOutline->setVisible(false);
+		d_view->displayNoDetection();
 		frame.unmap();
+		d_lastDetection.reset();
+		d_nbDetections = 0;
 		return true;
 	}
 
-	auto tagStr = fort::myrmidon::FormatTagID(detection->TagID);
-	setText(tr("Detected: %1").arg(tagStr.c_str()));
-	QPainterPath path;
-	path.moveTo(ToQt(detection->Corners[3]));
-	path.lineTo(ToQt(detection->Corners[0]));
-	path.lineTo(ToQt(detection->Corners[1]));
-	path.lineTo(ToQt(detection->Corners[2]));
-	path.lineTo(ToQt(detection->Corners[3]));
-	d_tagOutline->setPath(path);
-	d_tagOutline->setVisible(true);
 
-	if ( !d_lastDetection || d_lastDetection->TagID == detection->TagID ) {
+	if ( !d_lastDetection == false
+	     && d_lastDetection->TagID == detection->TagID ) {
 		if ( ++d_nbDetections >= d_settings->numberDetections() ) {
 			setDetectionActive(false);
-			emit newTag(detection->TagID);
+			QApplication::beep();
+			saveTag(detection->TagID);
 		}
+	} else {
+		d_lastDetection = detection;
+		d_nbDetections = 1;
 	}
 
-	//todo: display detection in scene
-
+	d_view->displayDetection(DetectionDisplay{
+	                                          .TagID = detection->TagID,
+	                                          .AntID = identifyAnt(detection->TagID),
+	                                          .Count = countTag(detection->TagID),
+	                                          .Corners = { ToQt(detection->Corners[0]),
+	                                                       ToQt(detection->Corners[1]),
+	                                                       ToQt(detection->Corners[2]),
+	                                                       ToQt(detection->Corners[3])}});
+	frame.unmap();
 	return true;
 }
 
-void DetectionProcess::setView(QGraphicsView * view) {
+void DetectionProcess::setView(DetectionView * view) {
 	d_view = view;
-	if ( d_view == nullptr ) {
-		return;
-	}
-	d_view->setScene(d_scene);
 }
 
 
@@ -147,13 +139,9 @@ bool DetectionProcess::start(const QVideoSurfaceFormat & format) {
 	if ( d_view == nullptr ) {
 		return false;
 	}
-	QRectF sceneBox(0,0,format.frameWidth(),format.frameHeight());
-
-	d_scene->setSceneRect(sceneBox);
-	d_view->fitInView(sceneBox,Qt::KeepAspectRatio);
-	d_textBackground->setVisible(true);
-	QRectF displayRect(0,0,format.frameWidth(),80);
-	d_textBackground->setRect(displayRect);
+	if ( d_view ) {
+		d_view->prepare(QSize(format.frameWidth(),format.frameHeight()));
+	}
 
 	setDetectionActive(true);
 	return QAbstractVideoSurface::start(format);
@@ -175,15 +163,50 @@ void DetectionProcess::setDetectionActive(bool value) {
 	emit detectionActiveChanged(d_detectionActive);
 }
 
+std::string FormatAntID(fort::myrmidon::AntID antID) {
+	std::ostringstream oss;
+	oss << std::setw(3) << std::setfill('0') << antID;
+	return oss.str();
+}
 
-void DetectionProcess::setText(const QString & text) {
-	if ( text.isEmpty() ) {
-		d_displayText->setVisible(false);
+void DetectionProcess::saveTag(quint32 tagID) {
+	auto now = fort::myrmidon::Time::Now();
+	std::ostringstream nowStr;
+
+	nowStr << now.Round(fort::myrmidon::Duration::Second);
+	auto tagStr = fort::myrmidon::FormatTagID(tagID);
+
+	auto timeItem = new QStandardItem(nowStr.str().c_str());
+	timeItem->setEditable(false);
+	auto tagItem = new QStandardItem(tagStr.c_str());
+	tagItem->setEditable(false);
+	QStandardItem * antItem = new QStandardItem("");
+	auto antID = identifyAnt(tagID);
+	if ( antID != 0 ) {
+		antItem->setText(FormatAntID(antID).c_str());
 	}
-	d_displayText->setText(text);
-	auto textRect =  d_displayText->boundingRect();
-	auto pos = d_textBackground->boundingRect().center()
-		- QPointF(textRect.width(),textRect.height()) * 0.5;
-	d_displayText->setPos(pos);
-	d_displayText->setVisible(true);
+	antItem->setEditable(false);
+	auto commentItem = new QStandardItem("");
+	d_model->insertRow(d_model->rowCount(),{timeItem,tagItem,antItem,commentItem});
+}
+
+
+quint32 DetectionProcess::identifyAnt(quint32 tagID) {
+	if ( !d_solver ) {
+		return 0;
+	}
+	return d_solver->IdentifyTag(tagID,fort::myrmidon::Time::Now());
+}
+
+quint32 DetectionProcess::countTag(quint32 tagID) {
+	auto tagStr = fort::myrmidon::FormatTagID(tagID);
+	return d_model->findItems(tagStr.c_str(),Qt::MatchExactly,1).size();
+}
+
+bool DetectionProcess::hasTrackingSolver() const {
+	return !d_solver == false;
+}
+
+void DetectionProcess::setTrackingSolver(const TrackingSolverPtr & solver ) {
+	d_solver = solver;
 }
