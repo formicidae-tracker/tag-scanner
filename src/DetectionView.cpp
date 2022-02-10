@@ -5,7 +5,7 @@
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsPathItem>
 
-#include <fort/myrmidon/Types.hpp>
+#include <fort/myrmidon/types/Typedefs.hpp>
 
 DetectionView::DetectionView(QWidget * parent)
 	: d_scene(new QGraphicsScene(this)) {

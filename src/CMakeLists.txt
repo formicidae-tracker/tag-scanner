@@ -36,10 +36,13 @@ add_executable(fort-tag-scanner ${SRC_FILES}
                                 ${RCC_FILES}
                                 )
 
+find_library(FORT_TIME_LIBRARY fort-time)
+
 target_link_libraries(fort-tag-scanner Qt5::Widgets
                                        Qt5::Multimedia
                                        ${FORT_TAGS_LIBRARIES}
                                        ${FORT_MYRMIDON_LIBRARIES}
+                                       ${FORT_TIME_LIBRARY}
                                        )
 
 set_target_properties(fort-tag-scanner PROPERTIES VERSION ${PROJECT_VERSION})

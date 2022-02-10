@@ -170,10 +170,10 @@ std::string DetectionProcess::FormatAntID(quint32 antID) {
 }
 
 void DetectionProcess::saveTag(quint32 tagID) {
-	auto now = fort::myrmidon::Time::Now();
+	auto now = fort::Time::Now();
 	std::ostringstream nowStr;
 
-	nowStr << now.Round(fort::myrmidon::Duration::Second);
+	nowStr << now.Round(fort::Duration::Second);
 	auto tagStr = fort::myrmidon::FormatTagID(tagID);
 
 	auto timeItem = new QStandardItem(nowStr.str().c_str());
@@ -195,7 +195,7 @@ quint32 DetectionProcess::identifyAnt(quint32 tagID) {
 	if ( !d_solver ) {
 		return 0;
 	}
-	return d_solver->IdentifyTag(tagID,fort::myrmidon::Time::Now());
+	return d_solver->IdentifyAnt(tagID,fort::Time::Now());
 }
 
 quint32 DetectionProcess::countTag(quint32 tagID) {
@@ -207,6 +207,6 @@ bool DetectionProcess::hasTrackingSolver() const {
 	return !d_solver == false;
 }
 
-void DetectionProcess::setTrackingSolver(const TrackingSolverPtr & solver ) {
-	d_solver = solver;
+void DetectionProcess::setTrackingSolver(TrackingSolverPtr solver ) {
+	d_solver = std::move(solver);
 }

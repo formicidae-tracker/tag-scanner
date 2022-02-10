@@ -17,7 +17,7 @@
 
 #include <opencv2/imgproc.hpp>
 
-#include <fort/myrmidon/Time.hpp>
+//#include <fort/time/Time.hpp>
 
 #include <fstream>
 
@@ -241,9 +241,9 @@ void MainWindow::on_actionLoadMyrmidonFile_triggered() {
 	}
 	using namespace fort::myrmidon;
 	try {
-		auto experiment = std::make_shared<CExperiment>(Experiment::OpenDataLess(filename.toUtf8().constData()));
-		auto trackingSolver = std::make_shared<TrackingSolver>(experiment->CompileTrackingSolver());
-		d_detectionProcess->setTrackingSolver(trackingSolver);
+		auto experiment = Experiment::OpenDataLess(filename.toUtf8().constData());
+		auto trackingSolver = experiment->CompileTrackingSolver(true);
+		d_detectionProcess->setTrackingSolver(std::move(trackingSolver));
 
 		d_ui->myrmidonFileLabel->setText(tr("File loaded: %1").arg(experiment->AbsoluteFilePath().c_str()));
 		d_ui->actionUnloadMyrmidonFile->setEnabled(true);

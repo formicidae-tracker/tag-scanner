@@ -25,7 +25,7 @@ class DetectionProcess : public QAbstractVideoSurface {
 	           NOTIFY detectionActiveChanged);
 
 public:
-	typedef std::shared_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
+	typedef std::unique_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
 
 
 	explicit DetectionProcess(QObject * parent = nullptr);
@@ -52,9 +52,9 @@ public:
 
 	bool hasTrackingSolver() const;
 
-public slots:
-	void setTrackingSolver(const TrackingSolverPtr & solver);
+	void setTrackingSolver(TrackingSolverPtr solver);
 
+public slots:
 	void setDetectionActive(bool value);
 
 	void clearData();

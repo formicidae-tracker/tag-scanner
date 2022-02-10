@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <fort/myrmidon/Types.hpp>
+#include <fort/myrmidon/types/Typedefs.hpp>
 
 #include <apriltag/apriltag.h>
 #include <apriltag/tag16h5.h>
@@ -15,7 +15,7 @@
 #include <apriltag/tagStandard52h13.h>
 #include <fort/tags/tag36ARTag.h>
 #include <fort/tags/tag36h10.h>
-#include <fort/tags/fort-tags.h>
+#include <fort/tags/fort-tags.hpp>
 
 struct Detection {
 	typedef std::shared_ptr<Detection> Ptr;

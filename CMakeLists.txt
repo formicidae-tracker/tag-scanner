@@ -9,12 +9,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 find_package(Qt5 COMPONENTS Widgets Multimedia REQUIRED)
+find_package(OpenCV REQUIRED core imgcodecs imgproc highgui videoio)
 
 find_package(FortTags 1.3.0 REQUIRED)
 find_package(FortMyrmidon 0.6.0 REQUIRED)
 
+
 include_directories(${FORT_MYRMIDON_INCLUDE_DIRS}
-                    ${FORT_TAGS_INCLUDE_DIRS})
+                    ${FORT_TAGS_INCLUDE_DIRS}
+                    ${OpenCV_INCLUDE_DIRS})
 
 
 add_subdirectory(src)

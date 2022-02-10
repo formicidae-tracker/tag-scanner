@@ -11,8 +11,8 @@ parts:
   myrmidon:
     plugin: cmake
     source-type: git
-    source: https://github.com/formicidae-tracker/studio.git
-    source-commit: 9c6e411c655cc6f24967c90989be57bd308e31e1
+    source: https://github.com/formicidae-tracker/myrmidon.git
+    source-commit: 4041408c00f364cda7ea33f8bb9fdef583599b07
     build-packages:
       - g++
       - make
@@ -24,6 +24,7 @@ parts:
       - qtbase5-dev
       - libasio-dev
       - libboost-dev
+      - libyaml-cpp-dev
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
     stage:
@@ -37,7 +38,7 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/formicidae-tracker/tag-scanner.git
-    source-tag: v0.2.2
+    source-tag: v0.2.3
     build-packages:
       - qtmultimedia5-dev
       - libqt5multimedia5-plugins
