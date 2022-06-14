@@ -1,5 +1,5 @@
 name: fort-tag-scanner
-version: "0.2.2"
+version: "0.2.3"
 summary:  A Tag Scanner for the FORmicidae Tracker
 description: |
   fort-tag-scanner is a small graphical application that uses a webcam
@@ -49,6 +49,7 @@ parts:
       - libopencv-videoio4.2
       - libprotobuf17
       - libpulse0
+      - libyaml-cpp0.6
       - gstreamer1.0-plugins-good
       - gstreamer1.0-plugins-bad
       - libglu1-mesa
