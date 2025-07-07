@@ -3,40 +3,38 @@
 #include <QWidget>
 
 class QCamera;
-class QCameraFocus;
 
 namespace Ui {
 class CameraSettings;
 }
 
 class CameraSettings : public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit CameraSettings(QWidget *parent = nullptr);
-    ~CameraSettings();
+	explicit CameraSettings(QWidget *parent = nullptr);
+	~CameraSettings();
 
-	void setCamera(QCamera * camera);
+	void setCamera(QCamera *camera);
 
 private slots:
-	void updateViewfinderSettings();
-	void updateFPSBox();
+	void updateCameraFormat();
 	void updateFocusMode();
-	void updateOpticalZoom();
-	void updateDigitalZoom();
+	void updateZoom();
+	void updateFocus();
+
 private:
-	bool opticalZoomSupported() const;
-	bool digitalZoomSupported() const;
+	bool zoomSupported() const;
+	bool focusAvailable() const;
 
-	qreal opticalZoomValue() const;
-	qreal digitalZoomValue() const;
+	// qreal zoomValue() const;
+	// qreal focusValue() const;
 
-	void setFocus(QCameraFocus * focus);
+	void setupFocus();
 
 	bool loadSettings();
 	void writeSettings();
 
-    Ui::CameraSettings * d_ui;
-	QCamera             * d_camera;
-	QCameraFocus        * d_focus;
-	std::map<QSize,std::vector<qreal>> d_resolutionAndFPS;
+	Ui::CameraSettings *d_ui;
+	QCamera	        *d_camera;
+	//	QCameraFocus	                   *d_focus;
 };

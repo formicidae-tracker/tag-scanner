@@ -5,116 +5,141 @@
 
 #include <iostream>
 
-#include <QFileDialog>
 #include <QApplication>
-#include <QShortcut>
-#include <QCloseEvent>
-#include <QSettings>
-#include <QMessageBox>
 #include <QCamera>
-#include <QCameraInfo>
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QMediaCaptureSession>
+#include <QMediaDevices>
+#include <QMessageBox>
+#include <QSettings>
+#include <QShortcut>
 #include <QStandardItemModel>
-
-#include <opencv2/imgproc.hpp>
-
+#include <QVideoSink>
 //#include <fort/time/Time.hpp>
 
 #include <fstream>
 
 MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent)
-	, d_ui(new Ui::MainWindow)
-	, d_camera(nullptr)
-	, d_detectionProcess(new DetectionProcess(this))
-	, d_needSave(false)
-	, d_cameraLoaded(false) {
-    d_ui->setupUi(this);
+    : QMainWindow(parent)
+    , d_ui(new Ui::MainWindow)
+    , d_camera(nullptr)
+    , d_session(new QMediaCaptureSession(this))
+    , d_sink(new QVideoSink(this))
+    , d_detectionProcess(new DetectionProcess(this))
+    , d_needSave(false)
+    , d_cameraLoaded(false) {
+	d_ui->setupUi(this);
 
-    auto cameraInfos = QCameraInfo::availableCameras();
-    for ( const auto & cInfo : cameraInfos ) {
-	    auto loadCameraAction = new QAction(tr("Use %1").arg(cInfo.description()),this);
-	    connect(loadCameraAction,&QAction::triggered,
-	            [this,cInfo]() {
-		            setCamera(new QCamera(cInfo,this));
-	            });
-	    d_ui->menuDevices->addAction(loadCameraAction);
-    }
+	d_session->setVideoSink(d_sink);
+	connect(
+	    d_sink,
+	    &QVideoSink::videoFrameChanged,
+	    d_detectionProcess,
+	    &DetectionProcess::pushNewFrame
+	);
 
-    d_detectionProcess->setApriltagSettings(d_ui->apriltagSettings);
-    d_detectionProcess->setView(d_ui->liveView);
+	auto cameraInfos = QMediaDevices::videoInputs();
+	for (const auto &cInfo : cameraInfos) {
+		auto loadCameraAction =
+		    new QAction(tr("Use %1").arg(cInfo.description()), this);
+		connect(loadCameraAction, &QAction::triggered, [this, cInfo]() {
+			setCamera(new QCamera(cInfo, this));
+		});
+		d_ui->menuDevices->addAction(loadCameraAction);
+	}
 
-    auto togglePlayPauseShortcut = new QShortcut(tr("Space"),this);
-    connect(togglePlayPauseShortcut,&QShortcut::activated,
-            this,&MainWindow::toggleDetection);
-    connect(d_ui->detectButton,&QPushButton::clicked,
-            this,&MainWindow::toggleDetection);
-    connect(d_detectionProcess,&DetectionProcess::detectionActiveChanged,
-            this,[this](bool active) {
-	                 d_ui->detectButton->setText(active ? tr("Pause Detection") : tr("Detect"));
-                 });
+	d_detectionProcess->setApriltagSettings(d_ui->apriltagSettings);
+	d_detectionProcess->setView(d_ui->liveView);
 
-    d_ui->detectButton->setEnabled(false);
+	auto togglePlayPauseShortcut = new QShortcut(tr("Space"), this);
+	connect(
+	    togglePlayPauseShortcut,
+	    &QShortcut::activated,
+	    this,
+	    &MainWindow::toggleDetection
+	);
+	connect(
+	    d_ui->detectButton,
+	    &QPushButton::clicked,
+	    this,
+	    &MainWindow::toggleDetection
+	);
+	connect(
+	    d_detectionProcess,
+	    &DetectionProcess::detectionActiveChanged,
+	    this,
+	    [this](bool active) {
+		    d_ui->detectButton->setText(
+		        active ? tr("Pause Detection") : tr("Detect")
+		    );
+	    }
+	);
 
-    connect(d_ui->actionQuit,&QAction::triggered,
-            [this]() { close(); });
+	d_ui->detectButton->setEnabled(false);
 
-    auto header = d_ui->tableView->horizontalHeader();
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setStretchLastSection(true);
+	connect(d_ui->actionQuit, &QAction::triggered, [this]() { close(); });
 
-    d_ui->tableView->setModel(d_detectionProcess->model());
+	auto header = d_ui->tableView->horizontalHeader();
+	header->setSectionResizeMode(QHeaderView::ResizeToContents);
+	header->setStretchLastSection(true);
 
+	d_ui->tableView->setModel(d_detectionProcess->model());
 
-    connect(d_detectionProcess->model(),&QStandardItemModel::itemChanged,
-            this,&MainWindow::onDataModification);
+	connect(
+	    d_detectionProcess->model(),
+	    &QStandardItemModel::itemChanged,
+	    this,
+	    &MainWindow::onDataModification
+	);
 
-    connect(d_detectionProcess->model(),&QStandardItemModel::rowsInserted,
-            this,&MainWindow::onDataModification);
+	connect(
+	    d_detectionProcess->model(),
+	    &QStandardItemModel::rowsInserted,
+	    this,
+	    &MainWindow::onDataModification
+	);
 
+	loadSettings();
+	on_actionUnloadMyrmidonFile_triggered();
 
-    loadSettings();
-    on_actionUnloadMyrmidonFile_triggered();
-
-
-    connect(this,&MainWindow::needSaveChanged,
-            this,[this](bool needSave) {
-	                 setWindowTitle(needSave ? tr("*FORT Tag Scanner") : tr("FORT Tag Scanner"));
-                 });
-    setWindowTitle(tr("FORT Tag Scanner"));
+	connect(this, &MainWindow::needSaveChanged, this, [this](bool needSave) {
+		setWindowTitle(
+		    needSave ? tr("*FORT Tag Scanner") : tr("FORT Tag Scanner")
+		);
+	});
+	setWindowTitle(tr("FORT Tag Scanner"));
 }
 
 MainWindow::~MainWindow() {
     delete d_ui;
 }
 
-
-void MainWindow::setCamera(QCamera * camera) {
-	if ( d_camera != nullptr ) {
+void MainWindow::setCamera(QCamera *camera) {
+	if (d_camera != nullptr) {
 		delete d_camera;
 		d_camera = nullptr;
 	}
 
 	d_cameraLoaded = false;
-	d_camera = camera;
+	d_camera       = camera;
 
-	if ( d_camera == nullptr ) {
+	if (d_camera == nullptr) {
 		d_ui->detectButton->setEnabled(false);
 		return;
 	}
 
-	connect(d_camera,&QCamera::statusChanged,
-	        this,[this](QCamera::Status status) {
-		            if ( status != QCamera::LoadedStatus || d_cameraLoaded == true) {
-			            return;
-		            }
-		            d_cameraLoaded = true;
-		            d_ui->cameraSettings->setCamera(d_camera);
-		            d_camera->start();
-	            });
+	connect(d_camera, &QCamera::activeChanged, this, [this](bool active) {
+		if (!active || d_cameraLoaded == true) {
+			return;
+		}
+		d_cameraLoaded = true;
+		d_ui->cameraSettings->setCamera(d_camera);
+		d_camera->start();
+	});
 
 	d_ui->detectButton->setEnabled(true);
-	d_camera->setViewfinder(d_detectionProcess);
-	d_camera->load();
+	d_camera->setActive(true);
 }
 
 void MainWindow::on_actionLoadImage_triggered() {

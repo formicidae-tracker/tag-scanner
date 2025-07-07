@@ -9,6 +9,8 @@ class Detection;
 #include <fort/myrmidon/Experiment.hpp>
 
 class QCamera;
+class QMediaCaptureSession;
+class QVideoSink;
 class DetectionProcess;
 
 namespace Ui {
@@ -16,20 +18,19 @@ class MainWindow;
 }
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow();
 
 protected:
-    void closeEvent(QCloseEvent *event) override;
-
+	void closeEvent(QCloseEvent *event) override;
 
 signals:
 	void needSaveChanged(bool needSave);
 
 private slots:
-	void setCamera(QCamera * camera);
+	void setCamera(QCamera *camera);
 
 	void on_actionLoadImage_triggered();
 	void on_actionSaveDataAsCSV_triggered();
@@ -49,11 +50,12 @@ private:
 
 	void setNeedSave(bool needSave);
 
-    Ui::MainWindow * d_ui;
+	Ui::MainWindow *d_ui;
 
-	QCamera          * d_camera;
-	DetectionProcess * d_detectionProcess;
-	bool               d_needSave;
-	bool               d_cameraLoaded;
-
+	QCamera	          *d_camera;
+	QMediaCaptureSession *d_session;
+	QVideoSink           *d_sink;
+	DetectionProcess     *d_detectionProcess;
+	bool                  d_needSave;
+	bool                  d_cameraLoaded;
 };

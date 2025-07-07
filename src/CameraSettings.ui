@@ -21,69 +21,59 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="formatLabel">
      <property name="text">
-      <string>Resolution:</string>
+      <string>Format:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QComboBox" name="resolutionBox"/>
+    <widget class="QComboBox" name="formatBox"/>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>FPS:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="fpsBox"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QComboBox" name="focusBox"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="focusModeLabel">
      <property name="text">
       <string>Focus Mode:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_4">
+   <item row="2" column="1">
+    <widget class="QComboBox" name="focusBox"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="focusLabel">
      <property name="text">
-      <string>Optical Zoom:</string>
+      <string>Focus:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Digital Zoom:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QSlider" name="opticalSlider">
+   <item row="3" column="1">
+    <widget class="QSlider" name="focusSlider">
      <property name="minimum">
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>200</number>
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QSlider" name="digitalSlider">
+   <item row="4" column="0">
+    <widget class="QLabel" name="zoomLabel">
+     <property name="text">
+      <string>Zoom:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QSlider" name="zoomSlider">
      <property name="minimum">
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>200</number>
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

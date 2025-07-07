@@ -6,24 +6,25 @@
 #include "ApriltagDetector.hpp"
 #include "ApriltagSettings.hpp"
 
-#include <QVideoSurfaceFormat>
-#include <QStandardItemModel>
-#include <QStandardItem>
 #include <QApplication>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QVideoFrame>
 
 #include <fort/myrmidon/Ant.hpp>
 #include <fort/myrmidon/Experiment.hpp>
 
-DetectionProcess::DetectionProcess(QObject * parent)
-	: QAbstractVideoSurface(parent)
-	, d_view(nullptr)
-	, d_detectionActive(false)
-	, d_detector( new ApriltagDetector(this) )
-	, d_settings(nullptr)
-	, d_model(new QStandardItemModel(this) ) {
+#include <iomanip>
+
+DetectionProcess::DetectionProcess(QObject *parent)
+    : QObject(parent)
+    , d_view(nullptr)
+    , d_detectionActive(false)
+    , d_detector(new ApriltagDetector(this))
+    , d_settings(nullptr)
+    , d_model(new QStandardItemModel(this)) {
 	clearData();
 }
-
 
 void DetectionProcess::clearData() {
 	d_model->clear();
@@ -61,95 +62,66 @@ std::ostream & operator<<(std::ostream & out,
 	           << "}";
 }
 
-QPointF ToQt(const Eigen::Vector2d & p) {
-	return QPointF(p.x(),p.y());
+QPointF ToQt(const Eigen::Vector2d &p) {
+	return QPointF(p.x(), p.y());
 }
 
-
-bool DetectionProcess::present(const QVideoFrame & frameIn)  {
-	if ( d_detectionActive == false ) {
-		//just drop the frame
-		return true;
+void DetectionProcess::pushNewFrame(const QVideoFrame &frameIn) {
+	if (d_detectionActive == false) {
+		// just drop the frame
+		return;
 	}
 
 	QVideoFrame frame(frameIn);
-	frame.map(QAbstractVideoBuffer::ReadOnly);
-	// now do the detection and the display, and stop detection if needed
-	auto imageFormat = QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat());
-	QImage image(frame.bits(),
-	             frame.width(),
-	             frame.height(),
-	             frame.bytesPerLine(),
-	             imageFormat);
-
-	if ( d_view == nullptr ) {
-		return true;
+	frame.map(QVideoFrame::ReadOnly);
+	//  now do the detection and the display, and stop detection if needed
+	auto image = frame.toImage();
+	if (d_view == nullptr) {
+		frame.unmap();
+		return;
 	}
 	d_view->displayImage(image);
 
 	auto detection = d_detector->processImage(image);
-	if ( !detection ) {
+	if (!detection) {
 		d_view->displayNoDetection();
 		frame.unmap();
 		d_lastDetection.reset();
 		d_nbDetections = 0;
-		return true;
+		return;
 	}
 
-
-	if ( !d_lastDetection == false
-	     && d_lastDetection->TagID == detection->TagID ) {
-		if ( ++d_nbDetections >= d_settings->numberDetections() ) {
+	if (!d_lastDetection == false &&
+	    d_lastDetection->TagID == detection->TagID) {
+		if (++d_nbDetections >= d_settings->numberDetections()) {
 			setDetectionActive(false);
 			QApplication::beep();
 			saveTag(detection->TagID);
 		}
 	} else {
 		d_lastDetection = detection;
-		d_nbDetections = 1;
+		d_nbDetections  = 1;
 	}
 
 	d_view->displayDetection(DetectionDisplay{
-	                                          .TagID = detection->TagID,
-	                                          .AntID = identifyAnt(detection->TagID),
-	                                          .Count = countTag(detection->TagID),
-	                                          .Corners = { ToQt(detection->Corners[0]),
-	                                                       ToQt(detection->Corners[1]),
-	                                                       ToQt(detection->Corners[2]),
-	                                                       ToQt(detection->Corners[3])}});
+	    .TagID   = detection->TagID,
+	    .AntID   = identifyAnt(detection->TagID),
+	    .Count   = countTag(detection->TagID),
+	    .Corners = {
+	        ToQt(detection->Corners[0]),
+	        ToQt(detection->Corners[1]),
+	        ToQt(detection->Corners[2]),
+	        ToQt(detection->Corners[3])}});
 	frame.unmap();
-	return true;
+	return;
 }
 
 void DetectionProcess::setView(DetectionView * view) {
 	d_view = view;
 }
 
-
-QList<QVideoFrame::PixelFormat> DetectionProcess::supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const {
-	return {QVideoFrame::Format_RGB24,QVideoFrame::Format_BGR24};
-}
-
-
 ApriltagDetector * DetectionProcess::detector() const {
 	return d_detector;
-}
-
-bool DetectionProcess::start(const QVideoSurfaceFormat & format) {
-	if ( d_view == nullptr ) {
-		return false;
-	}
-	if ( d_view ) {
-		d_view->prepare(QSize(format.frameWidth(),format.frameHeight()));
-	}
-
-	setDetectionActive(true);
-	return QAbstractVideoSurface::start(format);
-}
-
-void DetectionProcess::stop() {
-	QAbstractVideoSurface::stop();
-	setDetectionActive(false);
 }
 
 void DetectionProcess::setDetectionActive(bool value) {

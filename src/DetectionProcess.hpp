@@ -1,13 +1,14 @@
+#include <QVideoSink>
 #include <QWidget>
-#include <QAbstractVideoSurface>
 
 #include <memory>
+#include <qvideoframe.h>
 
 namespace fort {
 namespace myrmidon {
 class TrackingSolver;
 }
-}
+} // namespace fort
 
 class DetectionView;
 class ApriltagDetector;
@@ -17,38 +18,28 @@ class QStandardItemModel;
 class Detection;
 typedef std::shared_ptr<Detection> DetectionPtr;
 
-
-class DetectionProcess : public QAbstractVideoSurface {
+class DetectionProcess : public QObject {
 	Q_OBJECT
-	Q_PROPERTY(bool detectionActive
-	           READ isDetectionActive
-	           NOTIFY detectionActiveChanged);
+	Q_PROPERTY(bool detectionActive READ isDetectionActive NOTIFY
+	               detectionActiveChanged);
 
 public:
 	typedef std::unique_ptr<fort::myrmidon::TrackingSolver> TrackingSolverPtr;
 
-
-	explicit DetectionProcess(QObject * parent = nullptr);
+	explicit DetectionProcess(QObject *parent = nullptr);
 	virtual ~DetectionProcess();
 
 	static std::string FormatAntID(quint32 antID);
 
-	void setApriltagSettings(ApriltagSettings * settings);
-	void setView(DetectionView * view);
+	void setApriltagSettings(ApriltagSettings *settings);
+	void setView(DetectionView *view);
+	void setVideoSink(QVideoSink *sink);
 
-	bool present(const QVideoFrame & frame) override;
-
-	QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const override;
-
-	ApriltagDetector * detector() const;
+	ApriltagDetector *detector() const;
 
 	bool isDetectionActive() const;
 
-	bool start(const QVideoSurfaceFormat & format) override;
-
-	void stop() override;
-
-	QStandardItemModel * model() const;
+	QStandardItemModel *model() const;
 
 	bool hasTrackingSolver() const;
 
@@ -56,6 +47,8 @@ public:
 
 public slots:
 	void setDetectionActive(bool value);
+
+	void pushNewFrame(const QVideoFrame &frame);
 
 	void clearData();
 
@@ -69,15 +62,15 @@ private:
 
 	void saveTag(quint32 tagID);
 
-	ApriltagDetector * d_detector;
-	ApriltagSettings * d_settings;
-	DetectionView    * d_view;
+	ApriltagDetector *d_detector;
+	ApriltagSettings *d_settings;
+	DetectionView    *d_view;
 
-	QStandardItemModel * d_model;
+	QStandardItemModel *d_model;
 
-	TrackingSolverPtr  d_solver;
+	TrackingSolverPtr d_solver;
 
-	bool               d_detectionActive;
-	DetectionPtr       d_lastDetection;
-	size_t             d_nbDetections;
+	bool         d_detectionActive;
+	DetectionPtr d_lastDetection;
+	size_t       d_nbDetections;
 };
