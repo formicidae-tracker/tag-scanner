@@ -121,25 +121,18 @@ void MainWindow::setCamera(QCamera *camera) {
 		d_camera = nullptr;
 	}
 
-	d_cameraLoaded = false;
-	d_camera       = camera;
+	d_camera = camera;
+	d_session->setCamera(d_camera);
 
 	if (d_camera == nullptr) {
 		d_ui->detectButton->setEnabled(false);
 		return;
 	}
 
-	connect(d_camera, &QCamera::activeChanged, this, [this](bool active) {
-		if (!active || d_cameraLoaded == true) {
-			return;
-		}
-		d_cameraLoaded = true;
-		d_ui->cameraSettings->setCamera(d_camera);
-		d_camera->start();
-	});
-
 	d_ui->detectButton->setEnabled(true);
 	d_camera->setActive(true);
+	d_camera->start();
+	d_detectionProcess->setDetectionActive(true);
 }
 
 void MainWindow::on_actionLoadImage_triggered() {

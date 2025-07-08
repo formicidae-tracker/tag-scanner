@@ -80,6 +80,7 @@ void DetectionProcess::pushNewFrame(const QVideoFrame &frameIn) {
 		frame.unmap();
 		return;
 	}
+
 	d_view->displayImage(image);
 
 	auto detection = d_detector->processImage(image);
