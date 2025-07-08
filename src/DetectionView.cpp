@@ -7,8 +7,9 @@
 
 #include <fort/myrmidon/types/Typedefs.hpp>
 
-DetectionView::DetectionView(QWidget * parent)
-	: d_scene(new QGraphicsScene(this)) {
+DetectionView::DetectionView(QWidget *parent)
+    : d_scene(new QGraphicsScene(this))
+    , d_frameSize(-1, -1) {
 
 	setScene(d_scene);
 
@@ -22,7 +23,7 @@ DetectionView::DetectionView(QWidget * parent)
 	d_displayText->setVisible(false);
 
 	auto font = d_displayText->font();
-	font.setPixelSize(60);
+	font.setPixelSize(48);
 	d_displayText->setFont(font);
 
 	d_tagOutline = new QGraphicsPathItem();
@@ -33,18 +34,18 @@ DetectionView::DetectionView(QWidget * parent)
 	d_scene->addItem(d_textBackground);
 	d_scene->addItem(d_displayText);
 
-	setColor(0,0);
-
+	setColor(0, 0);
 }
 
+DetectionView::~DetectionView() {}
 
-DetectionView::~DetectionView() {
-}
-
-void DetectionView::displayImage(const QImage & image) {
+void DetectionView::displayImage(const QImage &image) {
+	if (d_frameSize != image.size()) {
+		prepare(image.size());
+	}
 	auto pixmap = QPixmap::fromImage(image);
 	d_image->setPixmap(pixmap);
-	fitInView(d_image->boundingRect(),Qt::KeepAspectRatio);
+	fitInView(d_image->boundingRect(), Qt::KeepAspectRatio);
 }
 
 void DetectionView::displayNoDetection() {
@@ -77,54 +78,52 @@ void DetectionView::displayDetection(const DetectionDisplay & detection) {
 
 }
 
-void DetectionView::prepare(const QSize & size) {
-	QRectF sceneBox(0,0,size.width(),size.height());
-
+void DetectionView::prepare(const QSize &size) {
+	if (size == d_frameSize) {
+		return;
+	}
+	d_frameSize = size;
+	QRectF sceneBox(0, 0, size.width(), size.height());
 	d_scene->setSceneRect(sceneBox);
-	fitInView(sceneBox,Qt::KeepAspectRatio);
+	fitInView(sceneBox, Qt::KeepAspectRatio);
 	d_textBackground->setVisible(true);
-	QRectF displayRect(0,0,size.width(),80);
+	QRectF displayRect(0, 0, size.width(), 80);
 	d_textBackground->setRect(displayRect);
-	setColor(0,0);
+	setColor(0, 0);
 }
 
-void DetectionView::setText(const QString & text) {
-	if ( text.isEmpty() ) {
+void DetectionView::setText(const QString &text) {
+	if (text.isEmpty()) {
 		d_displayText->setVisible(false);
 	}
 	d_displayText->setText(text);
-	auto textRect =  d_displayText->boundingRect();
-	auto pos = d_textBackground->boundingRect().center()
-		- QPointF(textRect.width(),textRect.height()) * 0.5;
+	auto textRect = d_displayText->boundingRect();
+	auto pos      = d_textBackground->boundingRect().center() -
+	           QPointF(textRect.width(), textRect.height()) * 0.5;
 	d_displayText->setPos(pos);
 	d_displayText->setVisible(true);
-
 }
 
-
-void DetectionView::setColor(quint32 antID,quint32 count) {
+void DetectionView::setColor(quint32 antID, quint32 count) {
 	QPen outlinePen;
 	outlinePen.setWidth(5);
 
-	if ( count > 1 ) {
-		outlinePen.setColor(QColor(255,0,0));
+	if (count > 1) {
+		outlinePen.setColor(QColor(255, 0, 0));
 		d_tagOutline->setPen(outlinePen);
-		d_tagOutline->setBrush(QColor(255,0,0,60));
-		d_textBackground->setBrush(QColor(255,0,0,127));
+		d_tagOutline->setBrush(QColor(255, 0, 0, 60));
+		d_textBackground->setBrush(QColor(255, 0, 0, 127));
 		return;
 	}
-	d_textBackground->setBrush(QColor(255,255,255,127));
+	d_textBackground->setBrush(QColor(255, 255, 255, 127));
 
-	if ( antID != 0 ) {
-		outlinePen.setColor(QColor(0,255,0));
+	if (antID != 0) {
+		outlinePen.setColor(QColor(0, 255, 0));
 		d_tagOutline->setPen(outlinePen);
-		d_tagOutline->setBrush(QColor(0,255,0,60));
+		d_tagOutline->setBrush(QColor(0, 255, 0, 60));
 	} else {
-		outlinePen.setColor(QColor(0,255,255));
+		outlinePen.setColor(QColor(0, 255, 255));
 		d_tagOutline->setPen(outlinePen);
-		d_tagOutline->setBrush(QColor(0,255,255,60));
+		d_tagOutline->setBrush(QColor(0, 255, 255, 60));
 	}
-
-
-
 }

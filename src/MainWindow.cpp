@@ -130,6 +130,7 @@ void MainWindow::setCamera(QCamera *camera) {
 	}
 
 	d_ui->detectButton->setEnabled(true);
+
 	d_camera->setActive(true);
 	d_camera->start();
 	d_detectionProcess->setDetectionActive(true);

@@ -1,37 +1,37 @@
 #include <QGraphicsView>
 
+class QImage;
 
 struct DetectionDisplay {
-	quint32 TagID,AntID,Count;
+	quint32 TagID, AntID, Count;
 
 	QList<QPointF> Corners;
 };
 
-
 class DetectionView : public QGraphicsView {
 	Q_OBJECT
 public:
-	explicit DetectionView(QWidget * parent = nullptr);
+	explicit DetectionView(QWidget *parent = nullptr);
 	virtual ~DetectionView();
 
-	void displayImage(const QImage & image);
+	void displayImage(const QImage &frame);
 
 	void displayNoDetection();
 
-	void displayDetection(const DetectionDisplay & detection);
+	void displayDetection(const DetectionDisplay &detection);
 
-	void prepare(const QSize & size);
+	void prepare(const QSize &size);
 
 private:
-	void setText(const QString & text);
+	void setText(const QString &text);
 
-	void setColor(quint32 antID,
-	              quint32 count);
+	void setColor(quint32 antID, quint32 count);
 
-	QGraphicsScene * d_scene;
+	QGraphicsScene *d_scene;
 
-	QGraphicsPixmapItem     * d_image;
-	QGraphicsSimpleTextItem * d_displayText;
-	QGraphicsRectItem       * d_textBackground;
-	QGraphicsPathItem       * d_tagOutline;
+	QGraphicsPixmapItem     *d_image;
+	QGraphicsSimpleTextItem *d_displayText;
+	QGraphicsRectItem       *d_textBackground;
+	QGraphicsPathItem       *d_tagOutline;
+	QSize                    d_frameSize;
 };
